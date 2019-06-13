@@ -16,7 +16,7 @@ export interface GlobalHeaderRightProps extends ConnectProps {
 
 class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
   render() {
-    const { theme, layout } = this.props;
+    const { theme, layout, menu } = this.props;
     let className = styles.right;
 
     if (theme === 'dark' && layout === 'topmenu') {
@@ -62,7 +62,7 @@ class GlobalHeaderRight extends Component<GlobalHeaderRightProps> {
             <Icon type="question-circle-o" />
           </a>
         </Tooltip>
-        <Avatar />
+        <Avatar menu={menu} />
         <SelectLang className={styles.action} />
       </div>
     );
