@@ -65,3 +65,17 @@ export interface IAnalysisData {
   salesTypeDataOffline: ISalesTypeDataOffline[];
   radarData: IRadarData[];
 }
+
+export interface IThingsList {
+  total: number;
+  offset: number;
+  limit: number;
+  things: IThing[];
+}
+
+export interface IThing {
+  id: string;
+  name: string;
+  key: string;
+  metadata: Object;
+}
