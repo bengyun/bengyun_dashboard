@@ -131,6 +131,8 @@ class Analysis extends Component<dashboardAnalysisProps, dashboardAnalysisState>
       salesTypeData,
       salesTypeDataOnline,
       salesTypeDataOffline,
+
+      mapData,
     } = dashboardAnalysis;
     let salesPieData;
     if (salesType === 'all') {
@@ -162,7 +164,7 @@ class Analysis extends Component<dashboardAnalysisProps, dashboardAnalysisState>
           </Suspense>
           <Suspense fallback={<PageLoading />}>
             <div style={{ width: '100%', height: '700px' }}>
-              <MapView />
+              <MapView mapData={mapData} />
             </div>
             <br />
           </Suspense>

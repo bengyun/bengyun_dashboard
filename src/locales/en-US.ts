@@ -4,6 +4,8 @@ import settingDrawer from './en-US/settingDrawer';
 import settings from './en-US/settings';
 import pwa from './en-US/pwa';
 import component from './en-US/component';
+import login from './en-US/login';
+import form from './en-US/form';
 
 export default {
   'navBar.lang': 'Languages',
@@ -17,4 +19,6 @@ export default {
   ...settings,
   ...pwa,
   ...component,
+  ...login,
+  ...form,
 };

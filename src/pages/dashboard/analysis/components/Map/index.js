@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Map, Markers } from 'react-amap';
-import styles from './index.less';
-import { Popover, Button } from 'antd';
+import { Map, Marker } from 'react-amap';
+import { Progress } from 'antd';
+// import styles from './index.less';
 
 const markers = [
   {
@@ -63,20 +63,129 @@ const markers = [
 class MapView extends Component {
   constructor(props) {
     super(props);
-    var _this = this;
-    // 随机生成 10 个标记点的原始数据
+    // 将地图中心定位到第一个泵站的位置
     this.mapCenter = markers[0].position;
-    console.log(props);
-    this.markersEvents = {
-      click(e, marker) {
-        // 通过高德原生提供的 getExtData 方法获取原始数据
-        const extData = marker.getExtData();
-        const index = extData.name;
-        //alert(`点击的是第${index}号坐标点`);
+
+    this.markerEvents = {
+      mouseover: e => {
+        const marker = e.target;
+        // Move to top while mouseover
+        marker.setzIndex(101);
+        const offset = { x: -120, y: -112 };
+        marker.setOffset(offset);
+        marker.render(MapView.renderMarkerHover);
+      },
+      mouseout: e => {
+        const marker = e.target;
+        // Move to default while mouseover
+        marker.setzIndex(100);
+        const offset = { x: -75, y: -62 };
+        marker.setOffset(offset);
+        marker.render(MapView.renderMarker);
       },
     };
   }
 
+  initializeMarker() {
+    const { mapData } = this.props;
+    if (mapData !== undefined && mapData.total !== undefined) {
+      const res = [];
+      for (let i = 0; i < mapData.things.length; i += 1) {
+        const zIndex = 100;
+        const offset = { x: -75, y: -62 };
+        res.push(
+          <Marker
+            position={mapData.things[i].metadata.position}
+            render={MapView.renderMarker}
+            events={this.markerEvents}
+            extData={mapData.things[i]}
+            offset={offset}
+            zIndex={zIndex}
+          />,
+        );
+      }
+      this.mapMarkers = res;
+      return res;
+    }
+    return null;
+  }
+
+  static renderMarker(extData) {
+    const { currFlowspeed, rateFlowspeed, maxFlowspeed } = extData.metadata;
+    const flowrate = (currFlowspeed / maxFlowspeed) * 100;
+    const rateflowrate = (rateFlowspeed / maxFlowspeed) * 100;
+    let color;
+    if (flowrate <= rateflowrate) {
+      color = 'green';
+    } else if (flowrate <= 100) {
+      color = 'yellow';
+    } else {
+      color = 'red';
+    }
+    const Style = {
+      width: '150px',
+      height: '50px',
+      position: 'relative',
+      color: 'green',
+      background: '#fff',
+      border: '1px solid #088cb7',
+      borderRadius: '5px',
+    };
+    const Before = {
+      position: 'absolute',
+      content: '',
+      width: '0',
+      height: '0',
+      top: '100%',
+      left: '45%',
+      borderTop: '12px solid #088cb7',
+      borderRight: '6px solid transparent',
+      borderLeft: '6px solid transparent',
+      borderBottom: '6px solid transparent',
+    };
+    return (
+      <div>
+        <div style={Style}>
+          {extData.name}
+          <Progress percent={flowrate} strokeColor={color} showInfo={false} />
+        </div>
+        <div style={Before} />
+      </div>
+    );
+  }
+
+  static renderMarkerHover(extData) {
+    const Style = {
+      width: '250px',
+      height: '100px',
+      position: 'relative',
+      color: 'green',
+      background: '#fff',
+      border: '1px solid #088cb7',
+      borderRadius: '5px',
+      zIndex: '9999',
+    };
+    const Before = {
+      position: 'absolute',
+      content: '',
+      width: '0',
+      height: '0',
+      top: '100%',
+      left: '45%',
+      borderTop: '12px solid #088cb7',
+      borderRight: '6px solid transparent',
+      borderLeft: '6px solid transparent',
+      borderBottom: '6px solid transparent',
+    };
+    return (
+      <div>
+        <div style={Style}>{extData.name}</div>
+        <div style={Before} />
+      </div>
+    );
+  }
+
+  /*
   renderMarkerFn = extData => {
     const markerStyle = {
       background: '#fff',
@@ -93,16 +202,13 @@ class MapView extends Component {
       </Popover>
     );
   };
+  */
 
   render() {
+    const mapMarkers = this.initializeMarker();
     return (
       <Map plugins={['ToolBar']} center={this.mapCenter} zoom={12}>
-        <Markers
-          render={this.renderMarkerFn}
-          markers={markers}
-          events={this.markersEvents}
-          useCluster={false}
-        />
+        {mapMarkers}
       </Map>
     );
   }

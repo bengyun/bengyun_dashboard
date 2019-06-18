@@ -45,7 +45,7 @@ export interface DefaultSettings {
 export default {
   navTheme: 'dark',
   primaryColor: '#1890FF',
-  layout: 'sidemenu',
+  layout: 'topmenu',
   contentWidth: 'Fluid',
   fixedHeader: false,
   autoHideHeader: false,
@@ -54,7 +54,7 @@ export default {
   menu: {
     locale: true,
   },
-  title: 'Ant Design Pro',
+  title: '中国泵云',
   pwa: false,
   iconfontUrl: '',
 } as DefaultSettings;

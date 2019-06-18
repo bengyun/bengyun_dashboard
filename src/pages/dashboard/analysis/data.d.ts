@@ -53,6 +53,20 @@ export interface IRadarData {
   value: number;
 }
 
+export interface IThing {
+  id: string;
+  name: string;
+  key: string;
+  metadata: Object;
+}
+
+export interface IThingsList {
+  total: number;
+  offset: number;
+  limit: number;
+  things: IThing[];
+}
+
 export interface IAnalysisData {
   visitData: IVisitData[];
   visitData2: IVisitData2[];
@@ -64,18 +78,6 @@ export interface IAnalysisData {
   salesTypeDataOnline: ISalesTypeDataOnline[];
   salesTypeDataOffline: ISalesTypeDataOffline[];
   radarData: IRadarData[];
-}
 
-export interface IThingsList {
-  total: number;
-  offset: number;
-  limit: number;
-  things: IThing[];
-}
-
-export interface IThing {
-  id: string;
-  name: string;
-  key: string;
-  metadata: Object;
+  mapData: IThingsList;
 }

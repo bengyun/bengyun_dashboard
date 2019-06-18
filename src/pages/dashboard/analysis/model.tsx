@@ -1,4 +1,4 @@
-import { fakeChartData } from './service';
+import { fakeChartData, getThings } from './service';
 import { IAnalysisData } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
@@ -36,6 +36,8 @@ const Model: ModelType = {
     salesTypeDataOnline: [],
     salesTypeDataOffline: [],
     radarData: [],
+
+    mapData: {},
   },
 
   effects: {
@@ -46,12 +48,23 @@ const Model: ModelType = {
         payload: response,
       });
     },
+
     *fetchSalesData(_, { call, put }) {
       const response = yield call(fakeChartData);
       yield put({
         type: 'save',
         payload: {
           salesData: response.salesData,
+        },
+      });
+    },
+
+    *fetchMapData(_, { call, put }) {
+      const response = yield call(getThings);
+      yield put({
+        type: 'save',
+        payload: {
+          mapData: response.mapData,
         },
       });
     },
