@@ -1,102 +1,54 @@
 import React, { Component } from 'react';
 import { Map, Marker } from 'react-amap';
-import { Progress } from 'antd';
-// import styles from './index.less';
-
-const markers = [
-  {
-    name: '郎家坪泵站',
-    address: '浙江省宁波市镇海区环湖西路168号',
-    pumps: ['无数据'],
-    position: {
-      longitude: 121.512097,
-      latitude: 30.049444,
-    },
-  },
-  {
-    name: '河横路牌楼泵站',
-    address: '浙江省宁波市镇海区王岙巷2',
-    pumps: ['1#泵', '2#泵'],
-
-    position: {
-      longitude: 121.553233,
-      latitude: 30.031005,
-    },
-  },
-  {
-    name: '田顾西泵站',
-    address: '浙江省宁波市镇海区西河路1号',
-    pumps: ['1#泵 350QZB-70 功率：18.5KW 扬程：5m', '2#泵：350QZB-70 功率：18.5KW 扬程：5m'],
-    position: {
-      longitude: 121.546947,
-      latitude: 30.005627,
-    },
-  },
-  {
-    name: '西河泵站',
-    address: '浙江省宁波市镇海区九龙大道2208号',
-    pumps: [
-      '1#泵：100WQ130-15-11 功率：11KW 扬程：15m 流量：130m3/h',
-      '2#泵：100WQ130-15-11 功率：11KW 扬程：15m 流量：130m3/h',
-      '3#泵：100WQ130-15-11 功率：11KW 扬程：15m 流量：130m3/h',
-    ],
-    position: {
-      longitude: 121.555785,
-      latitude: 30.022581,
-    },
-  },
-  {
-    name: '三星泵站',
-    address: '浙江省宁波市镇海区荣吉路836',
-    pumps: [
-      '1#泵：150JYWQ150-10-7.5 功率：7.5KW 扬程：11m 流量：130m3/h',
-      '2#泵：150JYWQ150-10-7.5 功率：7.5KW 扬程：11m 流量：130m3/h',
-      '3#泵：150JYWQ150-10-7.5 功率：7.5KW 扬程：11m 流量：130m3/h',
-    ],
-    position: {
-      longitude: 121.568672,
-      latitude: 29.972112,
-    },
-  },
-];
+import { Tag, Table, List, Button, Slider, Row, Col, InputNumber, Tabs } from 'antd';
+import styles from './index.less';
 
 class MapView extends Component {
+  state = {
+    maxFlow: 999,
+    rangeFlow: [0, 999],
+  };
+
   constructor(props) {
     super(props);
-    // 将地图中心定位到第一个泵站的位置
-    this.mapCenter = markers[0].position;
+    // 未将地图中心定位到某个位置
 
     this.markerEvents = {
       mouseover: e => {
         const marker = e.target;
         // Move to top while mouseover
         marker.setzIndex(101);
-        const offset = { x: -120, y: -112 };
+        const offset = { x: -114, y: -332 };
         marker.setOffset(offset);
-        marker.render(MapView.renderMarkerHover);
+        marker.render(this.renderMarkerHover);
       },
       mouseout: e => {
         const marker = e.target;
         // Move to default while mouseover
         marker.setzIndex(100);
-        const offset = { x: -75, y: -62 };
+        const offset = { x: -55, y: -37 };
         marker.setOffset(offset);
-        marker.render(MapView.renderMarker);
+        marker.render(this.renderMarker);
       },
     };
   }
 
   initializeMarker() {
     const { mapData } = this.props;
+    const { rangeFlow } = this.state;
     if (mapData !== undefined && mapData.total !== undefined) {
       const res = [];
+      const zIndex = 100;
+      const offset = { x: -55, y: -37 };
+      console.log(rangeFlow);
       for (let i = 0; i < mapData.things.length; i += 1) {
-        const zIndex = 100;
-        const offset = { x: -75, y: -62 };
+        if (mapData.things[i].metadata.currFlowspeed < rangeFlow[0]) continue;
+        if (mapData.things[i].metadata.currFlowspeed > rangeFlow[1]) continue;
         res.push(
           <Marker
+            key={mapData.things[i].key}
             position={mapData.things[i].metadata.position}
-            render={MapView.renderMarker}
+            render={this.renderMarker}
             events={this.markerEvents}
             extData={mapData.things[i]}
             offset={offset}
@@ -104,111 +56,146 @@ class MapView extends Component {
           />,
         );
       }
-      this.mapMarkers = res;
       return res;
     }
     return null;
   }
 
-  static renderMarker(extData) {
+  renderMarker(extData) {
     const { currFlowspeed, rateFlowspeed, maxFlowspeed } = extData.metadata;
     const flowrate = (currFlowspeed / maxFlowspeed) * 100;
     const rateflowrate = (rateFlowspeed / maxFlowspeed) * 100;
+    let background;
     let color;
     if (flowrate <= rateflowrate) {
-      color = 'green';
+      background = 'green';
+      color = 'white';
     } else if (flowrate <= 100) {
-      color = 'yellow';
+      background = 'yellow';
+      color = 'black';
     } else {
-      color = 'red';
+      background = 'red';
+      color = 'white';
     }
     const Style = {
-      width: '150px',
-      height: '50px',
-      position: 'relative',
-      color: 'green',
-      background: '#fff',
-      border: '1px solid #088cb7',
-      borderRadius: '5px',
-    };
-    const Before = {
-      position: 'absolute',
-      content: '',
-      width: '0',
-      height: '0',
-      top: '100%',
-      left: '45%',
-      borderTop: '12px solid #088cb7',
-      borderRight: '6px solid transparent',
-      borderLeft: '6px solid transparent',
-      borderBottom: '6px solid transparent',
+      color: color,
+      background: background,
     };
     return (
-      <div>
-        <div style={Style}>
+      <>
+        <div className={styles.small} style={Style}>
           {extData.name}
-          <Progress percent={flowrate} strokeColor={color} showInfo={false} />
         </div>
-        <div style={Before} />
-      </div>
+        <div className={styles.under} />
+      </>
     );
   }
 
-  static renderMarkerHover(extData) {
-    const Style = {
-      width: '250px',
-      height: '100px',
-      position: 'relative',
-      color: 'green',
-      background: '#fff',
-      border: '1px solid #088cb7',
-      borderRadius: '5px',
-      zIndex: '9999',
-    };
-    const Before = {
-      position: 'absolute',
-      content: '',
-      width: '0',
-      height: '0',
-      top: '100%',
-      left: '45%',
-      borderTop: '12px solid #088cb7',
-      borderRight: '6px solid transparent',
-      borderLeft: '6px solid transparent',
-      borderBottom: '6px solid transparent',
-    };
+  renderMarkerHover(extData) {
+    const { currFlowspeed, rateFlowspeed, maxFlowspeed, pumps } = extData.metadata;
+    const pumpTable = [];
+    for (let i = 0; i < pumps.length; i += 1) {
+      pumpTable.push(
+        '泵' +
+          pumps[i].name +
+          ' 功率' +
+          pumps[i].power +
+          ' 扬程' +
+          pumps[i].lift +
+          ' 流量' +
+          pumps[i].flow,
+      );
+    }
     return (
-      <div>
-        <div style={Style}>{extData.name}</div>
-        <div style={Before} />
-      </div>
+      <>
+        <div className={styles.large}>
+          {extData.name}
+          <div>
+            <Tag color="magenta">瞬时：{currFlowspeed.toString()}</Tag>
+            <Tag color="blue">额定：{rateFlowspeed.toString()}</Tag>
+            <Tag color="red">最大：{maxFlowspeed.toString()}</Tag>
+          </div>
+          <List
+            size="small"
+            header={<div>Pumps</div>}
+            bordered
+            dataSource={pumpTable}
+            renderItem={item => <List.Item>{item}</List.Item>}
+          />
+          <Button type="link">详细</Button>
+        </div>
+        <div className={styles.under} />
+      </>
     );
   }
 
-  /*
-  renderMarkerFn = extData => {
-    const markerStyle = {
-      background: '#fff',
-      padding: '2px',
-      backgroundColor: '#000',
-      color: '#fff',
-      border: '1px solid #fff',
-    };
-    const title = <Button onClick={() => this.props.showPage(1)}>{extData.name} 查看详情</Button>;
-    const content = extData.pumps.map((item, key) => <li key={item.id}>{item}</li>);
-    return (
-      <Popover title={title} content={content} trigger="hover">
-        <Button style={markerStyle}>{extData.name}</Button>
-      </Popover>
-    );
+  rangeFlowChange = value => {
+    this.setState({
+      rangeFlow: value,
+    });
   };
-  */
+  mixFlowChange = value => {
+    const { rangeFlow } = this.state;
+    this.setState({
+      rangeFlow: [value, rangeFlow[1]],
+    });
+  };
+  maxFlowChange = value => {
+    const { rangeFlow } = this.state;
+    this.setState({
+      rangeFlow: [rangeFlow[0], value],
+    });
+  };
+  tabChange = key => {
+    const { maxFlow } = this.state;
+    if (key !== 1) {
+      this.setState({
+        rangeFlow: [0, maxFlow],
+      });
+    }
+  };
+  initializeHover() {
+    const { TabPane } = Tabs;
+    const { rangeFlow, maxFlow } = this.state;
+    return (
+      <Tabs defaultActiveKey="1" onChange={this.tabChange} className={styles.hover}>
+        <TabPane tab="流量" key="1">
+          <Row>
+            <Col span={24}>
+              <Slider range value={rangeFlow} max={maxFlow} onChange={this.rangeFlowChange} />
+            </Col>
+          </Row>
+          <Row>
+            <Col span={12}>
+              <InputNumber
+                min={0}
+                max={maxFlow}
+                value={rangeFlow[0]}
+                onChange={this.mixFlowChange}
+              />
+            </Col>
+            <Col span={12}>
+              <InputNumber
+                min={0}
+                max={maxFlow}
+                value={rangeFlow[1]}
+                onChange={this.maxFlowChange}
+              />
+            </Col>
+          </Row>
+        </TabPane>
+        <TabPane tab="位置" key="2">
+          Content of Tab Pane 2
+        </TabPane>
+      </Tabs>
+    );
+  }
 
   render() {
-    const mapMarkers = this.initializeMarker();
     return (
-      <Map plugins={['ToolBar']} center={this.mapCenter} zoom={12}>
-        {mapMarkers}
+      <Map plugins={['ToolBar']} center={this.mapCenter}>
+        {this.initializeMarker()}
+        {this.initializeHover()}
       </Map>
     );
   }

@@ -194,7 +194,7 @@ const mapData: IThingsList = {
         rateFlowspeed: 75,
         maxFlowspeed: 100,
         address: '浙江省宁波市镇海区环湖西路168号',
-        pumps: ['无数据'],
+        pumps: [],
         position: {
           longitude: 121.512097,
           latitude: 30.049444,
@@ -210,7 +210,20 @@ const mapData: IThingsList = {
         rateFlowspeed: 75,
         maxFlowspeed: 100,
         address: '浙江省宁波市镇海区王岙巷2',
-        pumps: ['1#泵', '2#泵'],
+        pumps: [
+          {
+            name: '',
+            power: '',
+            lift: '',
+            flow: '',
+          },
+          {
+            name: '',
+            power: '',
+            lift: '',
+            flow: '',
+          },
+        ],
         position: {
           longitude: 121.553233,
           latitude: 30.031005,
@@ -218,15 +231,28 @@ const mapData: IThingsList = {
       },
     },
     {
-      id: '94d166d6-6477-43dc-93b7-5c3707dbef1e',
+      id: '94d166d6-6477-43dc-93b7-5c3707dbef1f',
       name: '田顾西泵站',
-      key: 'e4588a68-6028-4740-9f12-c356796aebe8',
+      key: 'e4588a68-6028-4740-9f12-c356796aebe9',
       metadata: {
         currFlowspeed: 85,
         rateFlowspeed: 75,
         maxFlowspeed: 100,
         address: '浙江省宁波市镇海区西河路1号',
-        pumps: ['1#泵 350QZB-70 功率：18.5KW 扬程：5m', '2#泵：350QZB-70 功率：18.5KW 扬程：5m'],
+        pumps: [
+          {
+            name: '350QZB-70',
+            power: '18.5KW',
+            lift: '5m',
+            flow: 'null',
+          },
+          {
+            name: '350QZB-70',
+            power: '18.5KW',
+            lift: '5m',
+            flow: 'null',
+          },
+        ],
         position: {
           longitude: 121.546947,
           latitude: 30.005627,
@@ -234,18 +260,33 @@ const mapData: IThingsList = {
       },
     },
     {
-      id: '94d166d6-6477-43dc-93b7-5c3707dbef1e',
+      id: '94d166d6-6477-43dc-93b7-5c3707dbef1g',
       name: '西河泵站',
-      key: 'e4588a68-6028-4740-9f12-c356796aebe8',
+      key: 'e4588a68-6028-4740-9f12-c356796aebea',
       metadata: {
         currFlowspeed: 100,
         rateFlowspeed: 75,
         maxFlowspeed: 100,
         address: '浙江省宁波市镇海区九龙大道2208号',
         pumps: [
-          '1#泵：100WQ130-15-11 功率：11KW 扬程：15m 流量：130m3/h',
-          '2#泵：100WQ130-15-11 功率：11KW 扬程：15m 流量：130m3/h',
-          '3#泵：100WQ130-15-11 功率：11KW 扬程：15m 流量：130m3/h',
+          {
+            name: '100WQ130-15-11',
+            power: '11KW',
+            lift: '15m',
+            flow: '130m3/h',
+          },
+          {
+            name: '100WQ130-15-11',
+            power: '11KW',
+            lift: '15m',
+            flow: '130m3/h',
+          },
+          {
+            name: '100WQ130-15-11',
+            power: '11KW',
+            lift: '15m',
+            flow: '130m3/h',
+          },
         ],
         position: {
           longitude: 121.555785,
@@ -256,16 +297,31 @@ const mapData: IThingsList = {
     {
       id: '94d166d6-6477-43dc-93b7-5c3707dbef1e',
       name: '三星泵站',
-      key: 'e4588a68-6028-4740-9f12-c356796aebe8',
+      key: 'e4588a68-6028-4740-9f12-c356796aebeb',
       metadata: {
         currFlowspeed: 125,
         rateFlowspeed: 75,
         maxFlowspeed: 100,
         address: '浙江省宁波市镇海区荣吉路836',
         pumps: [
-          '1#泵：150JYWQ150-10-7.5 功率：7.5KW 扬程：11m 流量：130m3/h',
-          '2#泵：150JYWQ150-10-7.5 功率：7.5KW 扬程：11m 流量：130m3/h',
-          '3#泵：150JYWQ150-10-7.5 功率：7.5KW 扬程：11m 流量：130m3/h',
+          {
+            name: '150JYWQ150-10-7.5',
+            power: '7.5KW',
+            lift: ' 11m',
+            flow: '130m3/h',
+          },
+          {
+            name: '150JYWQ150-10-7.5',
+            power: '7.5KW',
+            lift: '11m',
+            flow: '130m3/h',
+          },
+          {
+            name: '150JYWQ150-10-7.5',
+            power: '7.5KW',
+            lift: '11m',
+            flow: '130m3/h',
+          },
         ],
         position: {
           longitude: 121.568672,

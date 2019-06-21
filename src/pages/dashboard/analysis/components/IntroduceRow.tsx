@@ -26,8 +26,8 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: IVi
           bordered={false}
           title={
             <FormattedMessage
-              id="dashboard-analysis.analysis.total-sales"
-              defaultMessage="Total Sales"
+              id="dashboard-analysis.analysis.running-pump"
+              defaultMessage="Total Pump"
             />
           }
           action={
@@ -43,16 +43,16 @@ const IntroduceRow = ({ loading, visitData }: { loading: boolean; visitData: IVi
             </Tooltip>
           }
           loading={loading}
-          total={() => <Yuan>126560</Yuan>}
+          total={() => <div>26/45</div>}
           footer={
             <Field
               label={
                 <FormattedMessage
-                  id="dashboard-analysis.analysis.day-sales"
-                  defaultMessage="Daily Sales"
+                  id="dashboard-analysis.analysis.max-pump"
+                  defaultMessage="Max Pump"
                 />
               }
-              value={`￥${numeral(12423).format('0,0')}`}
+              value={`30`}
             />
           }
           contentHeight={46}

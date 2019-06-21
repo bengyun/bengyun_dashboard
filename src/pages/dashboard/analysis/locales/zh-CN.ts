@@ -31,4 +31,7 @@ export default {
   'dashboard-analysis.table.search-keyword': '搜索关键词',
   'dashboard-analysis.table.users': '用户数',
   'dashboard-analysis.table.weekly-range': '周涨幅',
+
+  'dashboard-analysis.analysis.running-pump': '在运行泵数',
+  'dashboard-analysis.analysis.max-pump': '最多同时运行泵数',
 };

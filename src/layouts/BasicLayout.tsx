@@ -73,7 +73,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
    */
 
   useState(() => {
-    console.log(props);
+    //console.log(props);
     if (dispatch) {
       dispatch({
         type: 'user/fetchCurrent',
