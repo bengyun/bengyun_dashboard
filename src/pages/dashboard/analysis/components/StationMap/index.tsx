@@ -1,18 +1,47 @@
 import React, { Component } from 'react';
+import { Tag, Table, List, Button, Input } from 'antd';
 import { Map, Marker } from 'react-amap';
-import { Tag, Table, List, Button, Slider, Row, Col, InputNumber, Tabs } from 'antd';
+import HoverPlane from './hoverPlane';
+import DetailPlane from './detailPlane';
 import styles from './index.less';
 
-class MapView extends Component {
+class StationMap extends Component {
   state = {
     maxFlow: 999,
     rangeFlow: [0, 999],
+    dateRange: { startTime: undefined, endTime: undefined, },
+    historyData: [
+      { x:'2019-06-01', y: 2 },
+      { x:'2019-06-02', y: 1 },
+      { x:'2019-06-03', y: 6 },
+      { x:'2019-06-04', y: 5 },
+      { x:'2019-06-05', y: 4 },
+      { x:'2019-06-06', y: 3 },
+      { x:'2019-06-07', y: 7 },
+      { x:'2019-06-08', y: 2 },
+      { x:'2019-06-09', y: 8 },
+      { x:'2019-06-10', y: 5 },
+      { x:'2019-06-11', y: 1 },
+      { x:'2019-06-12', y: 2 },
+    ],
   };
 
   constructor(props) {
     super(props);
     // 未将地图中心定位到某个位置
-
+    
+	const that = this;
+	
+    this.amapEvents = {
+      created: (mapInstance) => {
+        window.AMap.service('AMap.PlaceSearch',function(){
+          that.placeSearch = new window.AMap.PlaceSearch({  
+          });
+		  console.log(that.placeSearch);
+        });
+      }
+    };
+    
     this.markerEvents = {
       mouseover: e => {
         const marker = e.target;
@@ -34,26 +63,25 @@ class MapView extends Component {
   }
 
   initializeMarker() {
-    const { mapData } = this.props;
+    const { stationsData } = this.props;
     const { rangeFlow } = this.state;
-    if (mapData !== undefined && mapData.total !== undefined) {
+    if (stationsData !== undefined && stationsData.total !== undefined) {
       const res = [];
       const zIndex = 100;
       const offset = { x: -55, y: -37 };
-      console.log(rangeFlow);
-      for (let i = 0; i < mapData.things.length; i += 1) {
-        if (mapData.things[i].metadata.currFlowspeed < rangeFlow[0]) continue;
-        if (mapData.things[i].metadata.currFlowspeed > rangeFlow[1]) continue;
+      for (let i = 0; i < stationsData.stations.length; i += 1) {
+        if (stationsData.stations[i].metadata.currLevel < rangeFlow[0]) continue;
+        if (stationsData.stations[i].metadata.currLevel > rangeFlow[1]) continue;
         res.push(
           <Marker
-            key={mapData.things[i].key}
-            position={mapData.things[i].metadata.position}
+            key={stationsData.stations[i].key}
+            position={stationsData.stations[i].metadata.position}
             render={this.renderMarker}
             events={this.markerEvents}
-            extData={mapData.things[i]}
+            extData={stationsData.stations[i]}
             offset={offset}
             zIndex={zIndex}
-          />,
+          />
         );
       }
       return res;
@@ -62,9 +90,9 @@ class MapView extends Component {
   }
 
   renderMarker(extData) {
-    const { currFlowspeed, rateFlowspeed, maxFlowspeed } = extData.metadata;
-    const flowrate = (currFlowspeed / maxFlowspeed) * 100;
-    const rateflowrate = (rateFlowspeed / maxFlowspeed) * 100;
+    const { currLevel, rateLevel, maxLevel } = extData.metadata;
+    const flowrate = (currLevel / maxLevel) * 100;
+    const rateflowrate = (rateLevel / maxLevel) * 100;
     let background;
     let color;
     if (flowrate <= rateflowrate) {
@@ -92,7 +120,7 @@ class MapView extends Component {
   }
 
   renderMarkerHover(extData) {
-    const { currFlowspeed, rateFlowspeed, maxFlowspeed, pumps } = extData.metadata;
+    const { currLevel, rateLevel, maxLevel, pumps } = extData.metadata;
     const pumpTable = [];
     for (let i = 0; i < pumps.length; i += 1) {
       pumpTable.push(
@@ -111,9 +139,9 @@ class MapView extends Component {
         <div className={styles.large}>
           {extData.name}
           <div>
-            <Tag color="magenta">瞬时：{currFlowspeed.toString()}</Tag>
-            <Tag color="blue">额定：{rateFlowspeed.toString()}</Tag>
-            <Tag color="red">最大：{maxFlowspeed.toString()}</Tag>
+            <Tag color="magenta">瞬时：{currLevel.toString()}</Tag>
+            <Tag color="blue">额定：{rateLevel.toString()}</Tag>
+            <Tag color="red">最大：{maxLevel.toString()}</Tag>
           </div>
           <List
             size="small"
@@ -154,51 +182,37 @@ class MapView extends Component {
       });
     }
   };
-  initializeHover() {
-    const { TabPane } = Tabs;
-    const { rangeFlow, maxFlow } = this.state;
-    return (
-      <Tabs defaultActiveKey="1" onChange={this.tabChange} className={styles.hover}>
-        <TabPane tab="流量" key="1">
-          <Row>
-            <Col span={24}>
-              <Slider range value={rangeFlow} max={maxFlow} onChange={this.rangeFlowChange} />
-            </Col>
-          </Row>
-          <Row>
-            <Col span={12}>
-              <InputNumber
-                min={0}
-                max={maxFlow}
-                value={rangeFlow[0]}
-                onChange={this.mixFlowChange}
-              />
-            </Col>
-            <Col span={12}>
-              <InputNumber
-                min={0}
-                max={maxFlow}
-                value={rangeFlow[1]}
-                onChange={this.maxFlowChange}
-              />
-            </Col>
-          </Row>
-        </TabPane>
-        <TabPane tab="位置" key="2">
-          Content of Tab Pane 2
-        </TabPane>
-      </Tabs>
-    );
-  }
+  rangePickerChange = (data, dateString) =>{
+    const { dateRange } = this.state;
+    this.setState({
+      dateRange: { startTime: dateString[0], endTime: dateString[1], },
+    });
+  };
 
   render() {
+    const { rangeFlow, maxFlow, dateRange, historyData } = this.state;
     return (
-      <Map plugins={['ToolBar']} center={this.mapCenter}>
+      <Map plugins={['ToolBar']} center={this.mapCenter} events={this.amapEvents}>
+        <HoverPlane
+          tabChange={this.tabChange}
+          rangeFlowChange={this.rangeFlowChange}
+          mixFlowChange={this.mixFlowChange}
+          maxFlowChange={this.maxFlowChange}
+          rangeFlow={rangeFlow}
+          maxFlow={maxFlow}
+          />
+
+        <DetailPlane 
+          loading={false}
+          dateRange={dateRange}
+          rangePickerChange={this.rangePickerChange}
+          historyData={historyData}
+          />
+
         {this.initializeMarker()}
-        {this.initializeHover()}
       </Map>
     );
   }
 }
 
-export default MapView;
+export default StationMap;

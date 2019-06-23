@@ -23,19 +23,12 @@ module.exports = [
         path: '/',
         component: '../layouts/BasicLayout',
         Routes: ['src/pages/Authorized'],
-        authority: ['admin', 'user'],
         routes: [
+          { path: '/', redirect: '/dashboard/analysis', authority: ['admin', 'user'] },
           {
             name: 'analysis',
             path: '/dashboard/analysis',
             component: './dashboard/analysis',
-            authority: ['admin', 'user'],
-          },
-          {
-            path: '/',
-            name: 'welcome',
-            icon: 'smile',
-            component: './Welcome',
             authority: ['admin', 'user'],
           },
         ],

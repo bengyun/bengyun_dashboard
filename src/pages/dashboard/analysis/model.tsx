@@ -1,4 +1,4 @@
-import { fakeChartData, getThings } from './service';
+import { fakeChartData, getPumpStatus, getStationsData, getPumpPower, getPumpMaintain } from './service';
 import { IAnalysisData } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
@@ -13,8 +13,10 @@ export interface ModelType {
   namespace: string;
   state: IAnalysisData;
   effects: {
-    fetch: Effect;
-    fetchSalesData: Effect;
+    fetchPumpStatus:Effect;
+    fetchPumpMaintain:Effect;
+    fetchPumpPower:Effect;
+    fetchStationsData:Effect;
   };
   reducers: {
     save: Reducer<IAnalysisData>;
@@ -26,45 +28,46 @@ const Model: ModelType = {
   namespace: 'dashboardAnalysis',
 
   state: {
-    visitData: [],
-    visitData2: [],
-    salesData: [],
-    searchData: [],
-    offlineData: [],
-    offlineChartData: [],
-    salesTypeData: [],
-    salesTypeDataOnline: [],
-    salesTypeDataOffline: [],
-    radarData: [],
-
-    mapData: {},
+    pumpStatus: {},
+    pumpMaintain: {},
+    pumpPower: {},
+    stationsData: {},
   },
 
   effects: {
-    *fetch(_, { call, put }) {
-      const response = yield call(fakeChartData);
-      yield put({
-        type: 'save',
-        payload: response,
-      });
-    },
-
-    *fetchSalesData(_, { call, put }) {
-      const response = yield call(fakeChartData);
+    *fetchPumpStatus(_, { call, put }) {
+      const response = yield call(getPumpStatus);
       yield put({
         type: 'save',
         payload: {
-          salesData: response.salesData,
+          pumpStatus: response.pumpStatus,
         },
       });
     },
-
-    *fetchMapData(_, { call, put }) {
-      const response = yield call(getThings);
+    *fetchPumpMaintain(_, { call, put }) {
+      const response = yield call(getPumpMaintain);
       yield put({
         type: 'save',
         payload: {
-          mapData: response.mapData,
+          pumpMaintain: response.pumpMaintain,
+        },
+      });
+    },
+    *fetchPumpPower(_, { call, put }) {
+      const response = yield call(getPumpPower);
+      yield put({
+        type: 'save',
+        payload: {
+          pumpPower: response.pumpPower,
+        },
+      });
+    },
+    *fetchStationsData(_, { call, put }) {
+      const response = yield call(getStationsData);
+      yield put({
+        type: 'save',
+        payload: {
+          stationsData: response.stationsData,
         },
       });
     },
@@ -79,16 +82,9 @@ const Model: ModelType = {
     },
     clear() {
       return {
-        visitData: [],
-        visitData2: [],
-        salesData: [],
-        searchData: [],
-        offlineData: [],
-        offlineChartData: [],
-        salesTypeData: [],
-        salesTypeDataOnline: [],
-        salesTypeDataOffline: [],
-        radarData: [],
+        pumpStatus: {},
+        pumpMaintain: {},
+        stationsData: {},
       };
     },
   },

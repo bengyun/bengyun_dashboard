@@ -8,10 +8,6 @@ export async function fakeAccountLogin(params) {
   });
 }
 
-export async function fakeStationData() {
-  return request('/api/stations');
-}
-
 export async function queryProjectNotice() {
   return request('/api/project/notice');
 }

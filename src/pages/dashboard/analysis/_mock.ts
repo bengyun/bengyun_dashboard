@@ -1,198 +1,63 @@
 import moment from 'moment';
-import { IVisitData, IRadarData, IAnalysisData, IThingsList } from './data';
-//import { getThings } from '@/services/api';
+import { IAnalysisData, IPumpStatu, IpumpMaintain, IStationsList } from './data';
 
 // mock data
-const visitData: IVisitData[] = [];
-const beginDay = new Date().getTime();
-
-const fakeY = [7, 5, 4, 2, 4, 7, 5, 6, 5, 9, 6, 3, 1, 5, 3, 6, 5];
-for (let i = 0; i < fakeY.length; i += 1) {
-  visitData.push({
-    x: moment(new Date(beginDay + 1000 * 60 * 60 * 24 * i)).format('YYYY-MM-DD'),
-    y: fakeY[i],
-  });
-}
-
-const visitData2 = [];
-const fakeY2 = [1, 6, 4, 8, 3, 7, 2];
-for (let i = 0; i < fakeY2.length; i += 1) {
-  visitData2.push({
-    x: moment(new Date(beginDay + 1000 * 60 * 60 * 24 * i)).format('YYYY-MM-DD'),
-    y: fakeY2[i],
-  });
-}
-
-const salesData = [];
-for (let i = 0; i < 12; i += 1) {
-  salesData.push({
-    x: `${i + 1}月`,
-    y: Math.floor(Math.random() * 1000) + 200,
-  });
-}
-const searchData = [];
-for (let i = 0; i < 50; i += 1) {
-  searchData.push({
-    index: i + 1,
-    keyword: `搜索关键词-${i}`,
-    count: Math.floor(Math.random() * 1000),
-    range: Math.floor(Math.random() * 100),
-    status: Math.floor((Math.random() * 10) % 2),
-  });
-}
-const salesTypeData = [
-  {
-    x: '家用电器',
-    y: 4544,
-  },
-  {
-    x: '食用酒水',
-    y: 3321,
-  },
-  {
-    x: '个护健康',
-    y: 3113,
-  },
-  {
-    x: '服饰箱包',
-    y: 2341,
-  },
-  {
-    x: '母婴产品',
-    y: 1231,
-  },
-  {
-    x: '其他',
-    y: 1231,
-  },
-];
-
-const salesTypeDataOnline = [
-  {
-    x: '家用电器',
-    y: 244,
-  },
-  {
-    x: '食用酒水',
-    y: 321,
-  },
-  {
-    x: '个护健康',
-    y: 311,
-  },
-  {
-    x: '服饰箱包',
-    y: 41,
-  },
-  {
-    x: '母婴产品',
-    y: 121,
-  },
-  {
-    x: '其他',
-    y: 111,
-  },
-];
-
-const salesTypeDataOffline = [
-  {
-    x: '家用电器',
-    y: 99,
-  },
-  {
-    x: '食用酒水',
-    y: 188,
-  },
-  {
-    x: '个护健康',
-    y: 344,
-  },
-  {
-    x: '服饰箱包',
-    y: 255,
-  },
-  {
-    x: '其他',
-    y: 65,
-  },
-];
-
-const offlineData = [];
-for (let i = 0; i < 10; i += 1) {
-  offlineData.push({
-    name: `Stores ${i}`,
-    cvr: Math.ceil(Math.random() * 9) / 10,
-  });
-}
-const offlineChartData = [];
-for (let i = 0; i < 20; i += 1) {
-  offlineChartData.push({
-    x: new Date().getTime() + 1000 * 60 * 30 * i,
-    y1: Math.floor(Math.random() * 100) + 10,
-    y2: Math.floor(Math.random() * 100) + 10,
-  });
-}
-
-const radarOriginData = [
-  {
-    name: '个人',
-    ref: 10,
-    koubei: 8,
-    output: 4,
-    contribute: 5,
-    hot: 7,
-  },
-  {
-    name: '团队',
-    ref: 3,
-    koubei: 9,
-    output: 6,
-    contribute: 3,
-    hot: 1,
-  },
-  {
-    name: '部门',
-    ref: 4,
-    koubei: 1,
-    output: 6,
-    contribute: 5,
-    hot: 7,
-  },
-];
-
-const radarData: IRadarData[] = [];
-const radarTitleMap = {
-  ref: '引用',
-  koubei: '口碑',
-  output: '产量',
-  contribute: '贡献',
-  hot: '热度',
+const pumpStatus: IPumpStatu = {
+  working: 50,
+  total: 100,
+  runtime: 600,
 };
-radarOriginData.forEach(item => {
-  Object.keys(item).forEach(key => {
-    if (key !== 'name') {
-      radarData.push({
-        name: item.name,
-        label: radarTitleMap[key],
-        value: item[key],
-      });
-    }
-  });
-});
 
-const mapData: IThingsList = {
+const pumpMaintain: IpumpMaintain = {
+  breakdownPump: 50,
+  breakEveryDay: [
+    {x:'周日', y:2},
+	{x:'周一', y:3},
+	{x:'周二', y:1},
+	{x:'周三', y:0},
+	{x:'周四', y:3},
+	{x:'周五', y:2},
+	{x:'周六', y:5},
+  ],
+  repairEveryDay: [
+    {x:'周日', y:3},
+	{x:'周一', y:2},
+	{x:'周二', y:3},
+	{x:'周三', y:5},
+	{x:'周四', y:1},
+	{x:'周五', y:2},
+	{x:'周六', y:4},
+  ],
+  repairPump: 3,
+};
+
+const pumpPower: IPumpPower = {
+  currentPower: 56,
+  trendPower: [
+    {x:'周日', y:45},
+	{x:'周一', y:48},
+	{x:'周二', y:43},
+	{x:'周三', y:35},
+	{x:'周四', y:67},
+	{x:'周五', y:52},
+	{x:'周六', y:44},
+  ],
+  totalPower: 70,
+};
+
+const stationsData: IStationsList = {
   total: 5,
   offset: 0,
   limit: 10,
-  things: [
+  stations: [
     {
       id: '3ffb3880-d1e6-4edd-acd9-4294d013f35b',
       name: '郎家坪泵站',
       key: 'b1996995-237a-4552-94b2-83ec2e92a040',
       metadata: {
-        currFlowspeed: 50,
-        rateFlowspeed: 75,
-        maxFlowspeed: 100,
+        currLevel: 50,
+        rateLevel: 75,
+        maxLevel: 100,
         address: '浙江省宁波市镇海区环湖西路168号',
         pumps: [],
         position: {
@@ -206,9 +71,9 @@ const mapData: IThingsList = {
       name: '河横路牌楼泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebe8',
       metadata: {
-        currFlowspeed: 75,
-        rateFlowspeed: 75,
-        maxFlowspeed: 100,
+        currLevel: 75,
+        rateLevel: 75,
+        maxLevel: 100,
         address: '浙江省宁波市镇海区王岙巷2',
         pumps: [
           {
@@ -235,9 +100,9 @@ const mapData: IThingsList = {
       name: '田顾西泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebe9',
       metadata: {
-        currFlowspeed: 85,
-        rateFlowspeed: 75,
-        maxFlowspeed: 100,
+        currLevel: 85,
+        rateLevel: 75,
+        maxLevel: 100,
         address: '浙江省宁波市镇海区西河路1号',
         pumps: [
           {
@@ -264,9 +129,9 @@ const mapData: IThingsList = {
       name: '西河泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebea',
       metadata: {
-        currFlowspeed: 100,
-        rateFlowspeed: 75,
-        maxFlowspeed: 100,
+        currLevel: 100,
+        rateLevel: 75,
+        maxLevel: 100,
         address: '浙江省宁波市镇海区九龙大道2208号',
         pumps: [
           {
@@ -299,9 +164,9 @@ const mapData: IThingsList = {
       name: '三星泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebeb',
       metadata: {
-        currFlowspeed: 125,
-        rateFlowspeed: 75,
-        maxFlowspeed: 100,
+        currLevel: 125,
+        rateLevel: 75,
+        maxLevel: 100,
         address: '浙江省宁波市镇海区荣吉路836',
         pumps: [
           {
@@ -332,22 +197,33 @@ const mapData: IThingsList = {
   ],
 };
 
-const getFakeChartData: IAnalysisData = {
-  visitData,
-  visitData2,
-  salesData,
-  searchData,
-  offlineData,
-  offlineChartData,
-  salesTypeData,
-  salesTypeDataOnline,
-  salesTypeDataOffline,
-  radarData,
-
-  mapData,
+const getFakeData: IAnalysisData = {
+  pumpStatus,
+  pumpMaintain,
+  pumpPower,
+  stationsData,
 };
 
+const getFakePumpStatus: IPumpStatu = {
+  pumpStatus,
+}
+
+const getFakePumpMaintain: IPumpMaintain = {
+  pumpMaintain,
+}
+
+const getFakePumpPower: IPumpPower = {
+  pumpPower,
+}
+
+const getFakeStationsData: IStationsList = {
+  stationsData,
+}
+
 export default {
-  'GET  /api/fake_chart_data': getFakeChartData,
-  'GET  /api/things': getFakeChartData,
+  'GET  /api/data': getFakeData,
+  'GET  /api/stationsData': getFakeStationsData,
+  'GET  /api/pumpStatus': getFakePumpStatus,
+  'GET  /api/pumpMaintain': getFakePumpMaintain,
+  'GET  /api/pumpPower': getFakePumpPower,
 };

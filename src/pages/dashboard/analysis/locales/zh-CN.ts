@@ -1,6 +1,6 @@
 export default {
   'dashboard-analysis.analysis.test': '工专路 {no} 号店',
-  'dashboard-analysis.analysis.introduce': '指标说明',
+  
   'dashboard-analysis.analysis.total-sales': '总销售额',
   'dashboard-analysis.analysis.day-sales': '日销售额',
   'dashboard-analysis.analysis.visits': '访问量',
@@ -32,6 +32,19 @@ export default {
   'dashboard-analysis.table.users': '用户数',
   'dashboard-analysis.table.weekly-range': '周涨幅',
 
+  'dashboard-analysis.analysis.introduce': '指标说明',
   'dashboard-analysis.analysis.running-pump': '在运行泵数',
-  'dashboard-analysis.analysis.max-pump': '最多同时运行泵数',
+  'dashboard-analysis.analysis.run-time': '运行时间',
+  'dashboard-analysis.analysis.pump-maintain': '水泵维护',
+  'dashboard-analysis.analysis.daily-Repair': '今日维修',
+  'dashboard-analysis.analysis.pump-power': '水泵功率',
+  'dashboard-analysis.analysis.max-power': '最大功率',
+  
+  'dashboard-analysis.analysis.level-trend': '液位趋势',
+  
+  'dashboard-analysis.analysis.default': '未定',
+  
+  
+  
+  
 };
