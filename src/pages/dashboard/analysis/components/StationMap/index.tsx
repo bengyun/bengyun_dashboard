@@ -24,24 +24,13 @@ class StationMap extends Component {
       { x:'2019-06-11', y: 1 },
       { x:'2019-06-12', y: 2 },
     ],
+	mapCenter: undefined,
   };
 
   constructor(props) {
     super(props);
     // 未将地图中心定位到某个位置
-    
-	const that = this;
-	
-    this.amapEvents = {
-      created: (mapInstance) => {
-        window.AMap.service('AMap.PlaceSearch',function(){
-          that.placeSearch = new window.AMap.PlaceSearch({  
-          });
-		  console.log(that.placeSearch);
-        });
-      }
-    };
-    
+        
     this.markerEvents = {
       mouseover: e => {
         const marker = e.target;
@@ -188,16 +177,22 @@ class StationMap extends Component {
       dateRange: { startTime: dateString[0], endTime: dateString[1], },
     });
   };
+  returnLocation = (poi) =>{
+	this.setState({
+      mapCenter: poi.location,
+    });
+  }
 
   render() {
-    const { rangeFlow, maxFlow, dateRange, historyData } = this.state;
+    const { mapCenter, rangeFlow, maxFlow, dateRange, historyData } = this.state;
     return (
-      <Map plugins={['ToolBar']} center={this.mapCenter} events={this.amapEvents}>
+      <Map plugins={['ToolBar']} center={mapCenter}>
         <HoverPlane
           tabChange={this.tabChange}
           rangeFlowChange={this.rangeFlowChange}
           mixFlowChange={this.mixFlowChange}
           maxFlowChange={this.maxFlowChange}
+		  returnLocation = {this.returnLocation}
           rangeFlow={rangeFlow}
           maxFlow={maxFlow}
           />
