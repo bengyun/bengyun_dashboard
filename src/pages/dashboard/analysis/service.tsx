@@ -1,3 +1,4 @@
+import { stringify } from 'qs';
 import request from 'umi-request';
 
 export async function getData() {
@@ -18,4 +19,8 @@ export async function getPumpMaintain() {
 
 export async function getPumpPower() {
   return request('/api/pumpPower');
+}
+
+export async function getStationDetailData(data) {
+  return request(`/api/StationDetailData?${stringify(data)}`);
 }

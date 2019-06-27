@@ -4,32 +4,44 @@ import styles from './index.less';
 
 const { Search } = Input;
 
+/* for remember
+props = {
+  returnLocation  : function(){},
+  rangeFlowChange : function(){},
+  mixFlowChange   : function(){},
+  maxFlowChange   : function(){},
+  rangeFlow       : [0, 999],
+  maxFlow         : 999,
+};
+*/
+
 class HoverPlane extends Component {
   state = {
-    searchResult : [],
-    list : [],
+    searchResult: [],
+    list: [],
   };
-    
+
   constructor(props) {
+    // when need to use props in constructor, use super(props)
+    // when need not to use props in constructor, use super()
     super(props);
     const that = this;
-    window.AMap.service('AMap.PlaceSearch',function(){
-      that.placeSearch = new window.AMap.PlaceSearch({  
-      });
+    window.AMap.service('AMap.PlaceSearch', function() {
+      that.placeSearch = new window.AMap.PlaceSearch({});
     });
   }
-  
-  searchKeyChange = val =>{
+  // search
+  searchKey = val => {
     const that = this;
-    if(val === ''){
+    if (val === '') {
       this.setState({
         searchResult: [],
-		list: [],
+        list: [],
       });
-    }else{
-      this.placeSearch.search(val, ((status, result) => {
-        if(status === 'complete'){
-          let list = [];
+    } else {
+      this.placeSearch.search(val, (status, result) => {
+        if (status === 'complete') {
+          const list = [];
           const searchResult = result.poiList.pois;
           for (let i = 0; i < (searchResult.length > 5 ? 5 : searchResult.length); i += 1) {
             const poi = searchResult[i];
@@ -37,45 +49,49 @@ class HoverPlane extends Component {
           }
           that.setState({
             searchResult: searchResult,
-            list : list,
+            list: list,
           });
         }
-      }));
+      });
     }
-  }
-  
-  initializeResult(){
+  };
+  // when click result send location
+  selectSearchResult = index => {
+    const { returnLocation } = this.props;
+    const { searchResult } = this.state;
+    returnLocation(searchResult[index]);
+  };
+  // Show first five results from amap
+  ShowSearchResults() {
     const { list } = this.state;
-    if( list.length > 0 ){
+    if (list.length > 0) {
       return (
         <List
           bordered
           size="small"
           dataSource={list}
           renderItem={(item, index) => (
-            <List.Item onClick = { ()=>{ this.selectSearchResult(index) } }>
+            <List.Item
+              onClick={() => {
+                this.selectSearchResult(index);
+              }}
+            >
               {item}
             </List.Item>
           )}
         />
       );
-	}else{
-	  return null;
-	}
-  }
-  
-  selectSearchResult = (index) => {
-    const { returnLocation } = this.props;
-    const { searchResult } = this.state;
-    returnLocation(searchResult[index]);
+    } else {
+      return null;
+    }
   }
 
   render() {
     const { TabPane } = Tabs;
-    const { tabChange, rangeFlowChange, mixFlowChange, maxFlowChange } = this.props;
+    const { rangeFlowChange, mixFlowChange, maxFlowChange } = this.props;
     const { rangeFlow, maxFlow } = this.props;
     return (
-      <Tabs defaultActiveKey="1" onChange={tabChange} className={styles.hover}>
+      <Tabs defaultActiveKey="1" className={styles.hover}>
         <TabPane tab="液位" key="1">
           <Row>
             <Col span={24}>
@@ -84,29 +100,17 @@ class HoverPlane extends Component {
           </Row>
           <Row>
             <Col span={12}>
-              <InputNumber
-                min={0}
-                max={maxFlow}
-                value={rangeFlow[0]}
-                onChange={mixFlowChange}
-              />
+              <InputNumber min={0} max={maxFlow} value={rangeFlow[0]} onChange={mixFlowChange} />
             </Col>
             <Col span={12}>
-              <InputNumber
-                min={0}
-                max={maxFlow}
-                value={rangeFlow[1]}
-                onChange={maxFlowChange}
-              />
+              <InputNumber min={0} max={maxFlow} value={rangeFlow[1]} onChange={maxFlowChange} />
             </Col>
           </Row>
         </TabPane>
         <TabPane tab="位置" key="2">
-          <Search
-            placeholder="search place"
-            onSearch={this.searchKeyChange}
-          />
-          {this.initializeResult()}
+          <Search placeholder="search place" onSearch={this.searchKey} />
+
+          {this.ShowSearchResults()}
         </TabPane>
       </Tabs>
     );

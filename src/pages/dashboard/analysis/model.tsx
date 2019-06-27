@@ -1,4 +1,11 @@
-import { fakeChartData, getPumpStatus, getStationsData, getPumpPower, getPumpMaintain } from './service';
+import {
+  fakeChartData,
+  getPumpStatus,
+  getStationsData,
+  getPumpPower,
+  getPumpMaintain,
+  getStationDetailData,
+} from './service';
 import { IAnalysisData } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
@@ -13,10 +20,12 @@ export interface ModelType {
   namespace: string;
   state: IAnalysisData;
   effects: {
-    fetchPumpStatus:Effect;
-    fetchPumpMaintain:Effect;
-    fetchPumpPower:Effect;
-    fetchStationsData:Effect;
+    fetchPumpStatus: Effect;
+    fetchPumpMaintain: Effect;
+    fetchPumpPower: Effect;
+    fetchStationsData: Effect;
+    fetchStationDetailData: Effect;
+    clearStationDetailData: Effect;
   };
   reducers: {
     save: Reducer<IAnalysisData>;
@@ -32,6 +41,7 @@ const Model: ModelType = {
     pumpMaintain: {},
     pumpPower: {},
     stationsData: {},
+    stationDetailData: {},
   },
 
   effects: {
@@ -71,6 +81,23 @@ const Model: ModelType = {
         },
       });
     },
+    *fetchStationDetailData({ payload }, { call, put }) {
+      const response = yield call(getStationDetailData, payload);
+      yield put({
+        type: 'save',
+        payload: {
+          stationDetailData: response,
+        },
+      });
+    },
+    *clearStationDetailData(_, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          stationDetailData: {},
+        },
+      });
+    },
   },
 
   reducers: {
@@ -80,11 +107,13 @@ const Model: ModelType = {
         ...payload,
       };
     },
-    clear() {
+    clear(state, { payload }) {
       return {
         pumpStatus: {},
         pumpMaintain: {},
+        pumpPower: {},
         stationsData: {},
+        stationDetailData: {},
       };
     },
   },

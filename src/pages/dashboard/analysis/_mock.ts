@@ -11,22 +11,22 @@ const pumpStatus: IPumpStatu = {
 const pumpMaintain: IpumpMaintain = {
   breakdownPump: 50,
   breakEveryDay: [
-    {x:'周日', y:2},
-	{x:'周一', y:3},
-	{x:'周二', y:1},
-	{x:'周三', y:0},
-	{x:'周四', y:3},
-	{x:'周五', y:2},
-	{x:'周六', y:5},
+    { x: '周日', y: 2 },
+    { x: '周一', y: 3 },
+    { x: '周二', y: 1 },
+    { x: '周三', y: 0 },
+    { x: '周四', y: 3 },
+    { x: '周五', y: 2 },
+    { x: '周六', y: 5 },
   ],
   repairEveryDay: [
-    {x:'周日', y:3},
-	{x:'周一', y:2},
-	{x:'周二', y:3},
-	{x:'周三', y:5},
-	{x:'周四', y:1},
-	{x:'周五', y:2},
-	{x:'周六', y:4},
+    { x: '周日', y: 3 },
+    { x: '周一', y: 2 },
+    { x: '周二', y: 3 },
+    { x: '周三', y: 5 },
+    { x: '周四', y: 1 },
+    { x: '周五', y: 2 },
+    { x: '周六', y: 4 },
   ],
   repairPump: 3,
 };
@@ -34,13 +34,13 @@ const pumpMaintain: IpumpMaintain = {
 const pumpPower: IPumpPower = {
   currentPower: 56,
   trendPower: [
-    {x:'周日', y:45},
-	{x:'周一', y:48},
-	{x:'周二', y:43},
-	{x:'周三', y:35},
-	{x:'周四', y:67},
-	{x:'周五', y:52},
-	{x:'周六', y:44},
+    { x: '周日', y: 45 },
+    { x: '周一', y: 48 },
+    { x: '周二', y: 43 },
+    { x: '周三', y: 35 },
+    { x: '周四', y: 67 },
+    { x: '周五', y: 52 },
+    { x: '周六', y: 44 },
   ],
   totalPower: 70,
 };
@@ -206,18 +206,42 @@ const getFakeData: IAnalysisData = {
 
 const getFakePumpStatus: IPumpStatu = {
   pumpStatus,
-}
+};
 
 const getFakePumpMaintain: IPumpMaintain = {
   pumpMaintain,
-}
+};
 
 const getFakePumpPower: IPumpPower = {
   pumpPower,
-}
+};
 
 const getFakeStationsData: IStationsList = {
   stationsData,
+};
+
+function getFakeStationDetailData(req, res) {
+  const params = req.query;
+  const { stationId, stationDetailDataRange } = params;
+
+  res.send({
+    stationId: stationId,
+    stationDetailDataRange: stationDetailDataRange,
+    historyLevel: [
+      { x: '2019-06-01', y: 2 },
+      { x: '2019-06-02', y: 1 },
+      { x: '2019-06-03', y: 6 },
+      { x: '2019-06-04', y: 5 },
+      { x: '2019-06-05', y: 4 },
+      { x: '2019-06-06', y: 3 },
+      { x: '2019-06-07', y: 7 },
+      { x: '2019-06-08', y: 2 },
+      { x: '2019-06-09', y: 8 },
+      { x: '2019-06-10', y: 5 },
+      { x: '2019-06-11', y: 1 },
+      { x: '2019-06-12', y: 2 },
+    ],
+  });
 }
 
 export default {
@@ -226,4 +250,5 @@ export default {
   'GET  /api/pumpStatus': getFakePumpStatus,
   'GET  /api/pumpMaintain': getFakePumpMaintain,
   'GET  /api/pumpPower': getFakePumpPower,
+  'GET  /api/StationDetailData': getFakeStationDetailData,
 };

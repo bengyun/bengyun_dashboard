@@ -8,49 +8,66 @@ import styles from './index.less';
 
 const { RangePicker } = DatePicker;
 const { Bar } = Charts;
-const dateFormat = 'YYYY-MM-DD'||undefined;
+const dateFormat = 'YYYY-MM-DD' || undefined;
 
 class DetailPlane extends Component {
-  state = {
-  };
-  
+  state = {};
+
   constructor(props) {
+    // when need to use props in constructor, use super(props)
+    // when need not to use props in constructor, use super()
     super(props);
   }
 
   render() {
-    const { loading, dateRange, rangePickerChange, historyData } = this.props;
-	const { startTime, endTime } = dateRange;
+    const {
+      loading,
+      // Date Range
+      stationDetailDataRange,
+      // Date Range Change Function
+      stationDetailDataRangeChange,
+      // Show Data
+      stationDetailData,
+    } = this.props;
+
+    const { startTime, endTime } = stationDetailDataRange;
+
+    if (stationDetailData.historyLevel === undefined) return null;
+
     return (
-	  <div  className={styles.detail} >
-      <Card loading={loading} bodyStyle={{ padding: 0 }} >
-        <Row>
-          <Col xl={24} lg={24} md={24} sm={48} xs={48}>
-            <RangePicker
-              onChange={rangePickerChange}
-              style={{ width: 256 }}
-		      value={startTime ===undefined || endTime===undefined ? null : [moment(startTime, dateFormat), moment(endTime, dateFormat)]}
-			  format={dateFormat}
-			  placeholder={['开始时间','结束时间']}
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col xl={24} lg={24} md={24} sm={48} xs={48}>
-            <Bar
-              height={292}
-              title={
-                <FormattedMessage
-                  id="dashboard-analysis.analysis.level-trend"
-                  defaultMessage="Level Trend"
-                />
-              }
-              data={historyData}
-            />
-          </Col>
-        </Row>
-      </Card>
-	  </div>
+      <div className={styles.detail}>
+        <Card loading={loading} bodyStyle={{ padding: 0 }}>
+          <Row>
+            <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+              <RangePicker
+                onChange={stationDetailDataRangeChange}
+                style={{ width: 256 }}
+                value={
+                  startTime === undefined || endTime === undefined
+                    ? null
+                    : [moment(startTime, dateFormat), moment(endTime, dateFormat)]
+                }
+                format={dateFormat}
+                placeholder={['开始时间', '结束时间']}
+              />
+            </Col>
+          </Row>
+          <Row>
+            <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+              <Bar
+                height={292}
+                title={
+                  <FormattedMessage
+                    id="dashboard-analysis.analysis.level-trend"
+                    defaultMessage="Level Trend"
+                  />
+                }
+                data={stationDetailData.historyLevel}
+              />
+            </Col>
+          </Row>
+        </Card>
+      </div>
     );
   }
 }

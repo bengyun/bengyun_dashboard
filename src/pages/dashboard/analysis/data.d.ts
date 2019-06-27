@@ -11,11 +11,11 @@ export interface IpumpMaintain {
   repairPump: int;
 }
 
-export interface IPumpPower     {
+export interface IPumpPower {
   currentPower: int;
   trendPower: [];
   totalPower: int;
-};
+}
 
 export interface IStation {
   id: string;
@@ -31,9 +31,14 @@ export interface IStationsList {
   stations: IStation[];
 }
 
+export interface IStationDetailData {
+  historyLevel: [];
+}
+
 export interface IAnalysisData {
   pumpStatus: IPumpStatu;
-  pumpMaintain : IpumpMaintain;
+  pumpMaintain: IpumpMaintain;
   stationsData: IStationsList;
-  pumpPower: I    ;
+  pumpPower: IPumpPower;
+  stationDetailData: IStationDetailData;
 }
