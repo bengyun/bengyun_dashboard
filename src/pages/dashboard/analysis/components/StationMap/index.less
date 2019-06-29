@@ -1,84 +1,62 @@
 @import '~antd/lib/style/themes/default.less';
 
-.tagSelect {
-  position: relative;
-  max-height: 32px;
-  margin-left: -8px;
-  overflow: hidden;
-  line-height: 32px;
-  transition: all 0.3s;
-  user-select: none;
-  :global {
-    .ant-tag {
-      margin-right: 24px;
-      padding: 0 8px;
-      font-size: @font-size-base;
-    }
-  }
-  &.expanded {
-    max-height: 200px;
-    transition: all 0.3s;
-  }
-  .trigger {
-    position: absolute;
-    top: 0;
-    right: 0;
-    i {
-      font-size: 12px;
-    }
-  }
-  &.hasExpandTag {
-    padding-right: 50px;
-  }
-}
-
 .small {
   width: 120px;
   height: 25px;
   position: relative;
   text-align: center;
-  border: 1px solid blue;
-  border-radius: 5px;
 }
 .large {
   width: 250px;
-  height: 320px;
+  height: 250px;
   position: relative;
-  color: green;
-  background: #c0c7c1;
-  border: 1px solid blue;
-  border-radius: 5px;
 }
 .under {
   position: absolute;
   width: 0;
   height: 0;
   top: 100%;
-  left: 45%;
-  border-top: 12px solid blue;
-  border-right: 6px solid transparent;
-  border-left: 6px solid transparent;
-  border-bottom: 6px solid transparent;
+  left: 10px;
+  border-right: 3px solid transparent;
+  border-left: 3px solid transparent;
+  border-bottom: 3px solid transparent;
 }
-.hover {
+
+.searchPlane {
   position: absolute;
   top: 10px;
-  left: 10px;
+  right: 10px;
   width: 200px;
-  height: 300px;
-  padding: 5px 10px;
-  border: 1px solid #d3d3d3;
-  background-color: #f9f9f9;
 }
 
-.detail {
+.detailPlaneMask {
   position: absolute;
-  top: 0px;
-  right: 0px;
-  width: 280px;
-  height: 100%;
-  padding: 5px 10px;
-  border: 1px solid #d3d3d3;
-  background-color: #f9f9f9;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
 }
 
+.detailPlane {
+  position: absolute;
+  z-index: 1001;
+  overflow: hidden;
+  top: 0px;
+  left: 0px;
+  width: 0px;
+  height: 100%;
+  transition: width 1s;
+  -moz-transition: width 1s;
+  -webkit-transition: width 1s;
+  -o-transition: width 1s;
+}
+
+.pumpStatusPlane {
+  position: absolute;
+  top: 10px;
+  right: 220px;
+  background: white;
+  border: gray;
+}

@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
-import { Tag, List, Button } from 'antd';
+import { Badge, Icon, Card, Tag, Button } from 'antd';
+import { Row, Col, Divider } from 'antd';
 import { Marker } from 'react-amap';
 import styles from './index.less';
 
 const zIndex = 100;
-const offsetSmall = { x: -55, y: -37 };
-const offsetLarge = { x: -114, y: -332 };
+const offsetSmall = { x: -13, y: -35 };
+const offsetLarge = { x: -13, y: -260 };
 
 const markerEvents = {
   mouseover: e => {
@@ -27,83 +28,114 @@ const markerEvents = {
 };
 // render map markers while normal style
 const renderMarker = extData => {
-  const { currLevel, rateLevel, maxLevel } = extData.metadata;
-  const flowrate = (currLevel / maxLevel) * 100;
-  const rateflowrate = (rateLevel / maxLevel) * 100;
-  let background;
-  let color;
-  if (flowrate <= rateflowrate) {
-    background = 'green';
-    color = 'white';
-  } else if (flowrate <= 100) {
-    background = 'yellow';
-    color = 'black';
-  } else {
-    background = 'red';
-    color = 'white';
-  }
-  const Style = {
-    color: color,
-    background: background,
-  };
+  const { metadata, Online, name } = extData;
+
+  const { level, alarmLevel } = metadata;
+
+  let count = level;
+  let color = null;
+  let borderTop = '6px solid gray';
+  if (Online === false) {
+    count = <Icon type="disconnect" />;
+  } else
+    switch (alarmLevel) {
+      case 0:
+        color = 'cyan';
+        borderTop = '6px solid ' + color;
+        break;
+      case 1:
+        color = 'orange';
+        borderTop = '6px solid ' + color;
+        break;
+      case 2:
+        color = 'magenta';
+        borderTop = '6px solid ' + color;
+        break;
+      default:
+    }
+
   return (
     <>
-      <div className={styles.small} style={Style}>
-        {extData.name}
-      </div>
-      <div className={styles.under} />
+      <Badge count={count} overflowCount={9999}>
+        <Tag className={styles.small} color={color}>
+          {name}
+        </Tag>
+      </Badge>
+      <div className={styles.under} style={{ borderTop: borderTop }} />
     </>
   );
 };
+
 // render map markers while cursor hover
 const renderMarkerHover = extData => {
-  const { currLevel, rateLevel, maxLevel, pumps } = extData.metadata;
-  const pumpTable = [];
-  for (let i = 0; i < pumps.length; i += 1) {
-    pumpTable.push(
-      '泵' +
-        pumps[i].name +
-        ' 功率' +
-        pumps[i].power +
-        ' 扬程' +
-        pumps[i].lift +
-        ' 流量' +
-        pumps[i].flow,
-    );
-  }
+  const { metadata, Online, name, showDetailOf } = extData;
+
+  const { level, voltage, address, alarmLevel, dataUpdateTime } = metadata;
+
+  let count = level;
+  let color = null;
+  let borderTop = '6px solid gray';
+  if (Online === false) {
+    count = <Icon type="disconnect" />;
+  } else
+    switch (alarmLevel) {
+      case 0:
+        color = 'cyan';
+        borderTop = '6px solid ' + color;
+        break;
+      case 1:
+        color = 'orange';
+        borderTop = '6px solid ' + color;
+        break;
+      case 2:
+        color = 'magenta';
+        borderTop = '6px solid ' + color;
+        break;
+      default:
+    }
+
   return (
     <>
-      <div className={styles.large}>
-        {extData.name}
-        <div>
-          <Tag color="magenta">瞬时：{currLevel.toString()}</Tag>
-          <Tag color="blue">额定：{rateLevel.toString()}</Tag>
-          <Tag color="red">最大：{maxLevel.toString()}</Tag>
-        </div>
-        <List
-          size="small"
-          header={<div>Pumps</div>}
-          bordered
-          dataSource={pumpTable}
-          renderItem={item => <List.Item>{item}</List.Item>}
-        />
-        <Button
-          type="link"
-          onClick={() => {
-            extData.showDetailOf(extData.id);
-          }}
-        >
-          详细
-        </Button>
-      </div>
-      <div className={styles.under} />
+      <Card size="small" title={name} className={styles.large}>
+        <Row type="flex" justify="end" align="middle">
+          <Col span={12}>
+            <Tag color={color}>液位： {level} M</Tag>
+          </Col>
+          <Col span={12}>
+            <Tag color="geekblue">电压： {voltage} V</Tag>
+          </Col>
+        </Row>
+        <Divider />
+        <Row type="flex" justify="end" align="middle">
+          <Col span={8}>地址：</Col>
+          <Col span={16}>{address}</Col>
+        </Row>
+        <Row type="flex" justify="end" align="middle">
+          <Col span={8}>更新：</Col>
+          <Col span={16}>{dataUpdateTime}</Col>
+        </Row>
+        <Row type="flex" justify="end" align="middle">
+          <Col span={24} style={{ textAlign: 'center' }}>
+            <Button
+              type="link"
+              onClick={() => {
+                showDetailOf(extData);
+              }}
+            >
+              详细
+            </Button>
+          </Col>
+        </Row>
+      </Card>
+      <div className={styles.under} style={{ borderTop: borderTop }} />
     </>
   );
 };
 // Marker must exist as child of Map
 // So can not be made to component
-const CustomMarker = (stationData, showDetailOf) => {
-  const extData = { ...stationData, showDetailOf };
+// But can be made as function
+const CustomMarker = (stationData, Online, showDetailOf) => {
+  const extData = { ...stationData, Online, showDetailOf };
   return (
     <Marker
       key={stationData.key}

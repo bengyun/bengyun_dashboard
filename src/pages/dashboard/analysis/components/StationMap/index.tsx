@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import { Tag, Table, List, Button, Input } from 'antd';
 import { Map, Marker } from 'react-amap';
-import HoverPlane from './hoverPlane';
+
+import styles from './index.less';
+
 import DetailPlane from './detailPlane';
 import CustomMarker from './customMarker';
-import styles from './index.less';
+import SearchPlane from './searchPlane';
+import ToolBar from './ToolBar';
+import PumpStatusPlane from './pumpStatusPlane';
 
 /* Remember
 props = {
@@ -15,81 +19,118 @@ props = {
 
 class StationMap extends Component {
   state = {
-    maxFlow: 999,
-    rangeFlow: [0, 999],
     mapCenter: undefined,
-    dateRange: { startTime: undefined, endTime: undefined },
+    OnlineFilterCurState: { Online: true, Offline: true },
+
+    StationDetailVisible: false,
+    ShowStationExtData: null,
   };
 
   constructor(props) {
     super(props);
   }
 
-  rangeFlowChange = value => {
+  ShowStationDetail = extData => {
     this.setState({
-      rangeFlow: value,
+      StationDetailVisible: true,
+      ShowStationExtData: extData,
+    });
+
+    const { FatchStationDetail, stationDetailDataRange } = this.props;
+    let { startTime, endTime } = stationDetailDataRange;
+    if (startTime === undefined || endTime === undefined) {
+      const DateNow = new Date();
+      const YYYY = DateNow.getFullYear();
+      const M = DateNow.getMonth() + 1;
+      const MM = M.length === 2 ? M : '0' + M;
+      const DD = DateNow.getDate();
+      const HH = DateNow.getHours();
+      const mm = DateNow.getMinutes();
+      const ss = DateNow.getSeconds();
+      endTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
+      startTime = YYYY + '-' + MM + '-' + (DD - 1) + ' ' + HH + ':' + mm + ':' + ss;
+      FatchStationDetail({
+        stationId: extData.id,
+        stationDetailDataRange: { startTime: startTime, endTime: endTime },
+      });
+    }
+  };
+  CloseStationDetail = () => {
+    this.setState({
+      StationDetailVisible: false,
+      ShowStationExtData: null,
     });
   };
-  mixFlowChange = value => {
-    const { rangeFlow } = this.state;
-    this.setState({
-      rangeFlow: [value, rangeFlow[1]],
-    });
-  };
-  maxFlowChange = value => {
-    const { rangeFlow } = this.state;
-    this.setState({
-      rangeFlow: [rangeFlow[0], value],
-    });
-  };
-  returnLocation = poi => {
+
+  returnPoi = poi => {
     this.setState({
       mapCenter: poi.location,
     });
   };
 
+  OnlineFilterCallBack = OnlineFilterCurState => {
+    this.setState({
+      OnlineFilterCurState,
+    });
+  };
+
   // initialize map markers according to props.stationsData
-  initializeMarker() {
-    const { stationsData, getStationDetail } = this.props;
-    const { rangeFlow } = this.state;
-    if (stationsData !== undefined && stationsData.total !== undefined) {
-      const res = [];
-      for (let i = 0; i < stationsData.stations.length; i += 1) {
-        if (stationsData.stations[i].metadata.currLevel < rangeFlow[0]) continue;
-        if (stationsData.stations[i].metadata.currLevel > rangeFlow[1]) continue;
-        res.push(
-          CustomMarker(stationsData.stations[i], id => {
-            getStationDetail(id);
-          }),
-        );
-      }
-      return res;
+  RenderMarker = () => {
+    const { OnlineFilterCurState } = this.state;
+    const { stationsData } = this.props;
+    if (stationsData === undefined || stationsData.total === undefined) return null;
+    const res = [];
+    for (let i = 0; i < stationsData.stations.length; i += 1) {
+      const stationData = stationsData.stations[i];
+      const metadata = stationData.metadata;
+      const dataUpdateTimeStri = metadata.dataUpdateTime;
+      const dataUpdateTimeDate = new Date(dataUpdateTimeStri.replace(/-/g, '/')).getTime();
+      const fourHourBeforeDate = Date.now() - 1000 * 60 * 60 * 4;
+      const Online = dataUpdateTimeDate >= fourHourBeforeDate;
+
+      //Filter
+      //OnlineFilter
+      if (OnlineFilterCurState.Online === false && Online === true) continue;
+      if (OnlineFilterCurState.Offline === false && Online === false) continue;
+
+      res.push(CustomMarker(stationData, Online, this.ShowStationDetail));
     }
-    return null;
-  }
+    return res;
+  };
 
   render() {
-    const { mapCenter, rangeFlow, maxFlow } = this.state;
-    const { mapClick } = this.props;
-    const events = {
-      click: () => {
-        mapClick();
-      },
-    };
+    const { mapCenter } = this.state;
+
+    const { OnlineFilterCurState } = this.state;
+
+    const { StationDetailVisible, ShowStationExtData } = this.state;
+
+    //const plugins = ['MapType', 'OverView', 'Scale', 'ToolBar', 'ControlBar'];
+    const plugins = ['Scale', 'ToolBar'];
     return (
-      <Map plugins={['ToolBar']} center={mapCenter} events={events}>
-        <HoverPlane
-          rangeFlowChange={this.rangeFlowChange}
-          mixFlowChange={this.mixFlowChange}
-          maxFlowChange={this.maxFlowChange}
-          returnLocation={this.returnLocation}
-          rangeFlow={rangeFlow}
-          maxFlow={maxFlow}
+      <Map plugins={plugins} center={mapCenter}>
+        <SearchPlane
+          className={styles.searchPlane}
+          placeholder="输入位置定位地图"
+          returnPoi={this.returnPoi}
         />
 
-        <DetailPlane loading={false} {...this.props} />
+        <ToolBar
+          OnlineFilterCurState={OnlineFilterCurState}
+          OnlineFilterCallBack={this.OnlineFilterCallBack}
+        />
 
-        {this.initializeMarker()}
+        <DetailPlane
+          loading={false}
+          StationDetailVisible={StationDetailVisible}
+          ShowStationExtData={ShowStationExtData}
+          CloseStationDetail={this.CloseStationDetail}
+          {...this.props}
+        />
+
+        <PumpStatusPlane {...this.props} />
+
+        {this.RenderMarker()}
       </Map>
     );
   }

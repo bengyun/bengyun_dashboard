@@ -55,15 +55,16 @@ const stationsData: IStationsList = {
       name: '郎家坪泵站',
       key: 'b1996995-237a-4552-94b2-83ec2e92a040',
       metadata: {
-        currLevel: 50,
-        rateLevel: 75,
-        maxLevel: 100,
         address: '浙江省宁波市镇海区环湖西路168号',
         pumps: [],
         position: {
           longitude: 121.512097,
           latitude: 30.049444,
         },
+        level: 50,
+        alarmLevel: 1,
+        voltage: 210,
+        dataUpdateTime: '2019-06-29 10:16:56',
       },
     },
     {
@@ -71,9 +72,6 @@ const stationsData: IStationsList = {
       name: '河横路牌楼泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebe8',
       metadata: {
-        currLevel: 75,
-        rateLevel: 75,
-        maxLevel: 100,
         address: '浙江省宁波市镇海区王岙巷2',
         pumps: [
           {
@@ -93,6 +91,10 @@ const stationsData: IStationsList = {
           longitude: 121.553233,
           latitude: 30.031005,
         },
+        level: 75,
+        alarmLevel: 2,
+        voltage: 230,
+        dataUpdateTime: '2019-06-29 10:16:56',
       },
     },
     {
@@ -100,9 +102,6 @@ const stationsData: IStationsList = {
       name: '田顾西泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebe9',
       metadata: {
-        currLevel: 85,
-        rateLevel: 75,
-        maxLevel: 100,
         address: '浙江省宁波市镇海区西河路1号',
         pumps: [
           {
@@ -122,6 +121,10 @@ const stationsData: IStationsList = {
           longitude: 121.546947,
           latitude: 30.005627,
         },
+        level: 85,
+        alarmLevel: 0,
+        voltage: 240,
+        dataUpdateTime: '2019-06-29 18:16:56',
       },
     },
     {
@@ -129,9 +132,6 @@ const stationsData: IStationsList = {
       name: '西河泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebea',
       metadata: {
-        currLevel: 100,
-        rateLevel: 75,
-        maxLevel: 100,
         address: '浙江省宁波市镇海区九龙大道2208号',
         pumps: [
           {
@@ -157,16 +157,17 @@ const stationsData: IStationsList = {
           longitude: 121.555785,
           latitude: 30.022581,
         },
+        level: 100,
+        alarmLevel: 1,
+        voltage: 220,
+        dataUpdateTime: '2019-06-29 18:16:56',
       },
     },
     {
-      id: '94d166d6-6477-43dc-93b7-5c3707dbef1e',
+      id: '94d166d6-6477-43dc-93b7-5c3707dbef1h',
       name: '三星泵站',
       key: 'e4588a68-6028-4740-9f12-c356796aebeb',
       metadata: {
-        currLevel: 125,
-        rateLevel: 75,
-        maxLevel: 100,
         address: '浙江省宁波市镇海区荣吉路836',
         pumps: [
           {
@@ -192,6 +193,10 @@ const stationsData: IStationsList = {
           longitude: 121.568672,
           latitude: 29.972112,
         },
+        level: 125,
+        alarmLevel: 2,
+        voltage: 200,
+        dataUpdateTime: '2019-06-29 18:16:56',
       },
     },
   ],
@@ -220,13 +225,26 @@ const getFakeStationsData: IStationsList = {
   stationsData,
 };
 
-function getFakeStationDetailData(req, res) {
-  const params = req.query;
-  const { stationId, stationDetailDataRange } = params;
-
-  res.send({
-    stationId: stationId,
-    stationDetailDataRange: stationDetailDataRange,
+const fakeStationDetailData = [
+  {
+    stationId: '3ffb3880-d1e6-4edd-acd9-4294d013f35b',
+    historyLevel: [
+      { x: '2019-06-01', y: 1 },
+      { x: '2019-06-02', y: 2 },
+      { x: '2019-06-03', y: 3 },
+      { x: '2019-06-04', y: 4 },
+      { x: '2019-06-05', y: 0 },
+      { x: '2019-06-06', y: 3 },
+      { x: '2019-06-07', y: 7 },
+      { x: '2019-06-08', y: 2 },
+      { x: '2019-06-09', y: 8 },
+      { x: '2019-06-10', y: 5 },
+      { x: '2019-06-11', y: 2 },
+      { x: '2019-06-12', y: 2 },
+    ],
+  },
+  {
+    stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1e',
     historyLevel: [
       { x: '2019-06-01', y: 2 },
       { x: '2019-06-02', y: 1 },
@@ -236,12 +254,91 @@ function getFakeStationDetailData(req, res) {
       { x: '2019-06-06', y: 3 },
       { x: '2019-06-07', y: 7 },
       { x: '2019-06-08', y: 2 },
+      { x: '2019-06-09', y: 5 },
+      { x: '2019-06-10', y: 5 },
+      { x: '2019-06-11', y: 7 },
+      { x: '2019-06-12', y: 2 },
+    ],
+  },
+  {
+    stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1f',
+    historyLevel: [
+      { x: '2019-06-01', y: 2 },
+      { x: '2019-06-02', y: 1 },
+      { x: '2019-06-03', y: 6 },
+      { x: '2019-06-04', y: 5 },
+      { x: '2019-06-05', y: 4 },
+      { x: '2019-06-06', y: 3 },
+      { x: '2019-06-07', y: 1 },
+      { x: '2019-06-08', y: 2 },
       { x: '2019-06-09', y: 8 },
       { x: '2019-06-10', y: 5 },
       { x: '2019-06-11', y: 1 },
       { x: '2019-06-12', y: 2 },
     ],
-  });
+  },
+  {
+    stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1g',
+    historyLevel: [
+      { x: '2019-06-01', y: 2 },
+      { x: '2019-06-02', y: 1 },
+      { x: '2019-06-03', y: 8 },
+      { x: '2019-06-04', y: 5 },
+      { x: '2019-06-05', y: 4 },
+      { x: '2019-06-06', y: 3 },
+      { x: '2019-06-07', y: 2 },
+      { x: '2019-06-08', y: 2 },
+      { x: '2019-06-09', y: 8 },
+      { x: '2019-06-10', y: 5 },
+      { x: '2019-06-11', y: 1 },
+      { x: '2019-06-12', y: 2 },
+    ],
+  },
+  {
+    stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1h',
+    historyLevel: [
+      { x: '2019-06-01', y: 2 },
+      { x: '2019-06-02', y: 1 },
+      { x: '2019-06-03', y: 6 },
+      { x: '2019-06-04', y: 5 },
+      { x: '2019-06-05', y: 9 },
+      { x: '2019-06-06', y: 3 },
+      { x: '2019-06-07', y: 7 },
+      { x: '2019-06-08', y: 2 },
+      { x: '2019-06-09', y: 8 },
+      { x: '2019-06-10', y: 5 },
+      { x: '2019-06-11', y: 1 },
+      { x: '2019-06-12', y: 2 },
+    ],
+  },
+];
+
+function getFakeStationDetailData(req, res) {
+  const params = req.query;
+  const { stationId, stationDetailDataRange } = params;
+
+  console.log(stationId);
+  let targetStation = null;
+  for (let idx = 0; idx < fakeStationDetailData.length; idx++) {
+    if (fakeStationDetailData[idx].stationId == stationId)
+      targetStation = fakeStationDetailData[idx];
+  }
+  if (targetStation == null) {
+    res.send(null);
+  } else {
+    const historyLevel = [];
+    const startTime = new Date(stationDetailDataRange.startTime.replace(/-/g, '/')).getTime();
+    const endTime = new Date(stationDetailDataRange.endTime.replace(/-/g, '/')).getTime();
+    for (let idx = 0; idx < targetStation.historyLevel.length; idx++) {
+      const dataTime = new Date(targetStation.historyLevel[idx].x.replace(/-/g, '/')).getTime();
+      if (dataTime >= startTime && dataTime <= endTime) {
+        historyLevel.push(targetStation.historyLevel[idx]);
+      }
+    }
+    res.send({
+      historyLevel: historyLevel,
+    });
+  }
 }
 
 export default {

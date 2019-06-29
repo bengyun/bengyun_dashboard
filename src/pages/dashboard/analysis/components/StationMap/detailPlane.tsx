@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Row, Col, Card, Bar, DatePicker } from 'antd';
+import { Row, Col, Card, DatePicker, Table } from 'antd';
 import { FormattedMessage, formatMessage } from 'umi-plugin-react/locale';
 import { RangePickerValue } from 'antd/es/date-picker/interface';
 import moment from 'moment';
@@ -7,7 +7,7 @@ import Charts from '../Charts';
 import styles from './index.less';
 
 const { RangePicker } = DatePicker;
-const { Bar } = Charts;
+const { Bar, MiniArea } = Charts;
 const dateFormat = 'YYYY-MM-DD' || undefined;
 
 class DetailPlane extends Component {
@@ -19,55 +19,132 @@ class DetailPlane extends Component {
     super(props);
   }
 
+  FatchData = (data, dateString) => {
+    const { ShowStationExtData, FatchStationDetail } = this.props;
+
+    FatchStationDetail({
+      stationId: ShowStationExtData.id,
+      stationDetailDataRange: { startTime: dateString[0], endTime: dateString[1] },
+    });
+  };
+
+  ClosePlane = () => {
+    const { CloseStationDetail, ClearStationDetail } = this.props;
+    CloseStationDetail();
+    ClearStationDetail();
+  };
+
   render() {
     const {
       loading,
+      // TRUE/FALSE
+      StationDetailVisible,
+      // Function to close station detail
+      CloseStationDetail,
+      // StationExtData
+      ShowStationExtData,
+      // Function to fatch station detail
+      FatchStationDetail,
+      // Function to clear station detail
+      ClearStationDetail,
+
       // Date Range
       stationDetailDataRange,
-      // Date Range Change Function
-      stationDetailDataRangeChange,
       // Show Data
       stationDetailData,
     } = this.props;
 
-    const { startTime, endTime } = stationDetailDataRange;
+    let { startTime, endTime } = stationDetailDataRange;
 
-    if (stationDetailData.historyLevel === undefined) return null;
+    let style = null;
+    let mask = null;
+    if (StationDetailVisible) {
+      style = { width: 420 };
+      mask = <div className={styles.detailPlaneMask} onClick={this.ClosePlane} />;
+
+      if (startTime === undefined || endTime === undefined) {
+        const DateNow = new Date();
+        const YYYY = DateNow.getFullYear();
+        const M = DateNow.getMonth() + 1;
+        const MM = M.length === 2 ? M : '0' + M;
+        const DD = DateNow.getDate();
+        const HH = DateNow.getHours();
+        const mm = DateNow.getMinutes();
+        const ss = DateNow.getSeconds();
+        endTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
+        startTime = YYYY + '-' + MM + '-' + (DD - 1) + ' ' + HH + ':' + mm + ':' + ss;
+      }
+    }
+
+    const columns = [
+      {
+        title: '型号',
+        dataIndex: 'name',
+        key: 'name',
+      },
+      {
+        title: '功率',
+        dataIndex: 'power',
+        key: 'power',
+      },
+      {
+        title: '扬程',
+        dataIndex: 'lift',
+        key: 'lift',
+      },
+      {
+        title: '流速',
+        dataIndex: 'flow',
+        key: 'flow',
+      },
+    ];
+
+    let dataSource = null;
+    if (ShowStationExtData !== null && ShowStationExtData.metadata !== null)
+      dataSource = ShowStationExtData.metadata.pumps;
 
     return (
-      <div className={styles.detail}>
-        <Card loading={loading} bodyStyle={{ padding: 0 }}>
-          <Row>
-            <Col xl={24} lg={24} md={24} sm={48} xs={48}>
-              <RangePicker
-                onChange={stationDetailDataRangeChange}
-                style={{ width: 256 }}
-                value={
-                  startTime === undefined || endTime === undefined
-                    ? null
-                    : [moment(startTime, dateFormat), moment(endTime, dateFormat)]
-                }
-                format={dateFormat}
-                placeholder={['开始时间', '结束时间']}
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col xl={24} lg={24} md={24} sm={48} xs={48}>
-              <Bar
-                height={292}
-                title={
-                  <FormattedMessage
-                    id="dashboard-analysis.analysis.level-trend"
-                    defaultMessage="Level Trend"
-                  />
-                }
-                data={stationDetailData.historyLevel}
-              />
-            </Col>
-          </Row>
-        </Card>
-      </div>
+      <>
+        {mask}
+        <div className={styles.detailPlane} style={style}>
+          <Card style={{ height: '100%' }}>
+            <Row>
+              <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+                <RangePicker
+                  onChange={this.FatchData}
+                  style={{ width: '100%' }}
+                  value={
+                    startTime === undefined || endTime === undefined
+                      ? null
+                      : [moment(startTime, dateFormat), moment(endTime, dateFormat)]
+                  }
+                  format={dateFormat}
+                  placeholder={['开始时间', '结束时间']}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+                <Bar
+                  height={292}
+                  title={
+                    <FormattedMessage
+                      id="dashboard-analysis.analysis.level-trend"
+                      defaultMessage="Level Trend"
+                    />
+                  }
+                  data={stationDetailData.historyLevel}
+                />
+              </Col>
+            </Row>
+            <Row>
+              <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+                <Table dataSource={dataSource} columns={columns} />;
+              </Col>
+            </Row>
+          </Card>
+        </div>
+      </>
     );
   }
 }

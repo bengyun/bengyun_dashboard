@@ -47,9 +47,6 @@ interface DashboardAnalysisState {}
 )
 class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState> {
   state: dashboardAnalysisState = {
-    salesType: 'all',
-    currentTabKey: '',
-    rangePickerValue: getTimeDistance('year'),
     stationId: null,
     stationDetailDataRange: { startTime: undefined, endTime: undefined },
   };
@@ -80,35 +77,20 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
     });
   }
 
-  //地图侧边显示的操作
-  getStationDetail = stationId => {
+  // 地图侧边显示的操作
+  FatchStationDetail = data => {
     this.setState({
-      stationId: stationId,
+      stationId: data.stationId,
+      stationDetailDataRange: data.stationDetailDataRange,
     });
 
     const { dispatch } = this.props;
     dispatch({
       type: 'dashboardAnalysis/fetchStationDetailData',
-      payload: { stationId },
+      payload: data,
     });
   };
-  stationDetailDataRangeChange = (data, dateString) => {
-    const stationDetailDataRange = { startTime: dateString[0], endTime: dateString[1] };
-    this.setState({
-      stationDetailDataRange: stationDetailDataRange,
-    });
-
-    const { stationId } = this.state;
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'dashboardAnalysis/fetchStationDetailData',
-      payload: {
-        stationId,
-        stationDetailDataRange,
-      },
-    });
-  };
-  mapClick = () => {
+  ClearStationDetail = () => {
     this.setState({
       stationId: null,
       stationDetailDataRange: { startTime: undefined, endTime: undefined },
@@ -147,26 +129,14 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
             <div style={{ width: '100%', height: '700px' }}>
               <StationMap
                 loading={loadingStationsData}
-                mapClick={this.mapClick}
                 stationsData={stationsData}
+                pumpStatus={pumpStatus}
                 stationDetailData={stationDetailData}
-                getStationDetail={this.getStationDetail}
                 stationDetailDataRange={stationDetailDataRange}
-                stationDetailDataRangeChange={this.stationDetailDataRangeChange}
+                FatchStationDetail={this.FatchStationDetail}
+                ClearStationDetail={this.ClearStationDetail}
               />
             </div>
-            <br />
-          </Suspense>
-
-          <Suspense fallback={<PageLoading />}>
-            <IntroduceRow
-              loadingPumpStatus={loadingPumpStatus}
-              pumpStatus={pumpStatus}
-              loadingPumpMaintain={loadingPumpMaintain}
-              pumpMaintain={pumpMaintain}
-              loadingPumpPower={loadingPumpPower}
-              pumpPower={pumpPower}
-            />
           </Suspense>
         </React.Fragment>
       </GridContent>
