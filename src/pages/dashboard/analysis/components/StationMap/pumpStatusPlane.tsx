@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Statistic, Card } from 'antd';
+import { Icon } from 'antd';
 import styles from './index.less';
 
 /* for remember
@@ -21,7 +21,8 @@ class PumpStatusPlane extends Component {
     const { pumpStatus } = this.props;
     return (
       <div className={styles.pumpStatusPlane}>
-        <Statistic title="运行中水泵" value={pumpStatus.working + ' / ' + pumpStatus.total} />
+        <Icon type="setting" theme="filled" />
+        工作水泵 {pumpStatus.working + ' / ' + pumpStatus.total}
       </div>
     );
   }

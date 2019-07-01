@@ -15,13 +15,13 @@ function CheckStateChange(value, OnlineFilterCallBack) {
     if (value[idx] === 'Offline') OnlineFilterCurState.Offline = true;
   }
   let callback = () => {};
-  if (typeof OnlineFilterCallBack == 'function') callback = OnlineFilterCallBack;
+  if (typeof OnlineFilterCallBack === 'function') callback = OnlineFilterCallBack;
   callback(OnlineFilterCurState);
 }
 
 function OnlineFilter(props) {
   const { OnlineFilterCallBack, OnlineFilterCurState } = props;
-  const options = [{ label: 'Online', value: 'Online' }, { label: 'Offline', value: 'Offline' }];
+  const options = [{ label: '在线', value: 'Online' }, { label: '离线', value: 'Offline' }];
   const defaultValue = [];
   if (OnlineFilterCurState.Online) defaultValue.push('Online');
   if (OnlineFilterCurState.Offline) defaultValue.push('Offline');

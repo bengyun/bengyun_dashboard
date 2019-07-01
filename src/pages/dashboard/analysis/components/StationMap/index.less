@@ -1,25 +1,25 @@
 @import '~antd/lib/style/themes/default.less';
 
 .small {
+  position: relative;
   width: 120px;
   height: 25px;
-  position: relative;
   text-align: center;
 }
 .large {
+  position: relative;
   width: 250px;
   height: 250px;
-  position: relative;
 }
 .under {
   position: absolute;
-  width: 0;
-  height: 0;
   top: 100%;
   left: 10px;
+  width: 0;
+  height: 0;
   border-right: 3px solid transparent;
-  border-left: 3px solid transparent;
   border-bottom: 3px solid transparent;
+  border-left: 3px solid transparent;
 }
 
 .searchPlane {
@@ -32,31 +32,33 @@
 .detailPlaneMask {
   position: absolute;
   top: 0;
-  bottom: 0;
   right: 0;
+  bottom: 0;
   left: 0;
-  background: rgba(0, 0, 0, 0.5);
   z-index: 1000;
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .detailPlane {
   position: absolute;
-  z-index: 1001;
-  overflow: hidden;
   top: 0px;
   left: 0px;
+  z-index: 1001;
   width: 0px;
   height: 100%;
-  transition: width 1s;
-  -moz-transition: width 1s;
-  -webkit-transition: width 1s;
-  -o-transition: width 1s;
+  overflow: hidden;
+  -moz-transition: width 0.5s;
+  -webkit-transition: width 0.5s;
+  -o-transition: width 0.5s;
+  transition: width 0.5s;
 }
 
 .pumpStatusPlane {
   position: absolute;
   top: 10px;
   right: 220px;
+  font-size: 21px;
   background: white;
-  border: gray;
+  border: solid 1px #9dfcd5;
+  border-radius: 5px;
 }

@@ -1,6 +1,20 @@
 import moment from 'moment';
 import { IAnalysisData, IPumpStatu, IpumpMaintain, IStationsList } from './data';
 
+const DataTime = [];
+const DateNow = new Date();
+// 时间间隔4小时，一天6条，30天180条，随机生成240天的液位
+for (let idx = 0; idx < 1440; idx++) {
+  const YYYY = DateNow.getFullYear();
+  const MM = DateNow.getMonth() + 1;
+  const DD = DateNow.getDate();
+  const HH = DateNow.getHours();
+  const mm = DateNow.getMinutes();
+  const ss = DateNow.getSeconds();
+  DataTime.push(YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss);
+  DateNow.setTime(DateNow.getTime() - 4 * 60 * 60 * 1000);
+}
+
 // mock data
 const pumpStatus: IPumpStatu = {
   working: 50,
@@ -64,7 +78,7 @@ const stationsData: IStationsList = {
         level: 50,
         alarmLevel: 1,
         voltage: 210,
-        dataUpdateTime: '2019-06-29 10:16:56',
+        dataUpdateTime: DataTime[2],
       },
     },
     {
@@ -94,7 +108,7 @@ const stationsData: IStationsList = {
         level: 75,
         alarmLevel: 2,
         voltage: 230,
-        dataUpdateTime: '2019-06-29 10:16:56',
+        dataUpdateTime: DataTime[1],
       },
     },
     {
@@ -124,7 +138,7 @@ const stationsData: IStationsList = {
         level: 85,
         alarmLevel: 0,
         voltage: 240,
-        dataUpdateTime: '2019-06-29 18:16:56',
+        dataUpdateTime: DataTime[0],
       },
     },
     {
@@ -160,7 +174,7 @@ const stationsData: IStationsList = {
         level: 100,
         alarmLevel: 1,
         voltage: 220,
-        dataUpdateTime: '2019-06-29 18:16:56',
+        dataUpdateTime: DataTime[0],
       },
     },
     {
@@ -196,7 +210,7 @@ const stationsData: IStationsList = {
         level: 125,
         alarmLevel: 2,
         voltage: 200,
-        dataUpdateTime: '2019-06-29 18:16:56',
+        dataUpdateTime: DataTime[0],
       },
     },
   ],
@@ -225,91 +239,34 @@ const getFakeStationsData: IStationsList = {
   stationsData,
 };
 
+const createHistoryLevel = () => {
+  const historyLevel = [];
+  for (let idx = DataTime.length - 1; idx >= 0; idx--) {
+    historyLevel.push({ x: DataTime[idx], y: Math.random() * 5 + 5 });
+  }
+  return historyLevel;
+};
+
 const fakeStationDetailData = [
   {
     stationId: '3ffb3880-d1e6-4edd-acd9-4294d013f35b',
-    historyLevel: [
-      { x: '2019-06-01', y: 1 },
-      { x: '2019-06-02', y: 2 },
-      { x: '2019-06-03', y: 3 },
-      { x: '2019-06-04', y: 4 },
-      { x: '2019-06-05', y: 0 },
-      { x: '2019-06-06', y: 3 },
-      { x: '2019-06-07', y: 7 },
-      { x: '2019-06-08', y: 2 },
-      { x: '2019-06-09', y: 8 },
-      { x: '2019-06-10', y: 5 },
-      { x: '2019-06-11', y: 2 },
-      { x: '2019-06-12', y: 2 },
-    ],
+    historyLevel: createHistoryLevel(),
   },
   {
     stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1e',
-    historyLevel: [
-      { x: '2019-06-01', y: 2 },
-      { x: '2019-06-02', y: 1 },
-      { x: '2019-06-03', y: 6 },
-      { x: '2019-06-04', y: 5 },
-      { x: '2019-06-05', y: 4 },
-      { x: '2019-06-06', y: 3 },
-      { x: '2019-06-07', y: 7 },
-      { x: '2019-06-08', y: 2 },
-      { x: '2019-06-09', y: 5 },
-      { x: '2019-06-10', y: 5 },
-      { x: '2019-06-11', y: 7 },
-      { x: '2019-06-12', y: 2 },
-    ],
+    historyLevel: createHistoryLevel(),
   },
   {
     stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1f',
-    historyLevel: [
-      { x: '2019-06-01', y: 2 },
-      { x: '2019-06-02', y: 1 },
-      { x: '2019-06-03', y: 6 },
-      { x: '2019-06-04', y: 5 },
-      { x: '2019-06-05', y: 4 },
-      { x: '2019-06-06', y: 3 },
-      { x: '2019-06-07', y: 1 },
-      { x: '2019-06-08', y: 2 },
-      { x: '2019-06-09', y: 8 },
-      { x: '2019-06-10', y: 5 },
-      { x: '2019-06-11', y: 1 },
-      { x: '2019-06-12', y: 2 },
-    ],
+    historyLevel: createHistoryLevel(),
   },
   {
     stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1g',
-    historyLevel: [
-      { x: '2019-06-01', y: 2 },
-      { x: '2019-06-02', y: 1 },
-      { x: '2019-06-03', y: 8 },
-      { x: '2019-06-04', y: 5 },
-      { x: '2019-06-05', y: 4 },
-      { x: '2019-06-06', y: 3 },
-      { x: '2019-06-07', y: 2 },
-      { x: '2019-06-08', y: 2 },
-      { x: '2019-06-09', y: 8 },
-      { x: '2019-06-10', y: 5 },
-      { x: '2019-06-11', y: 1 },
-      { x: '2019-06-12', y: 2 },
-    ],
+    historyLevel: createHistoryLevel(),
   },
   {
     stationId: '94d166d6-6477-43dc-93b7-5c3707dbef1h',
-    historyLevel: [
-      { x: '2019-06-01', y: 2 },
-      { x: '2019-06-02', y: 1 },
-      { x: '2019-06-03', y: 6 },
-      { x: '2019-06-04', y: 5 },
-      { x: '2019-06-05', y: 9 },
-      { x: '2019-06-06', y: 3 },
-      { x: '2019-06-07', y: 7 },
-      { x: '2019-06-08', y: 2 },
-      { x: '2019-06-09', y: 8 },
-      { x: '2019-06-10', y: 5 },
-      { x: '2019-06-11', y: 1 },
-      { x: '2019-06-12', y: 2 },
-    ],
+    historyLevel: createHistoryLevel(),
   },
 ];
 
@@ -317,13 +274,12 @@ function getFakeStationDetailData(req, res) {
   const params = req.query;
   const { stationId, stationDetailDataRange } = params;
 
-  console.log(stationId);
   let targetStation = null;
   for (let idx = 0; idx < fakeStationDetailData.length; idx++) {
-    if (fakeStationDetailData[idx].stationId == stationId)
+    if (fakeStationDetailData[idx].stationId === stationId)
       targetStation = fakeStationDetailData[idx];
   }
-  if (targetStation == null) {
+  if (targetStation === null) {
     res.send(null);
   } else {
     const historyLevel = [];

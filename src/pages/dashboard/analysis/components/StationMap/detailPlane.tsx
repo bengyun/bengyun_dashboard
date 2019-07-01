@@ -54,26 +54,13 @@ class DetailPlane extends Component {
       stationDetailData,
     } = this.props;
 
-    let { startTime, endTime } = stationDetailDataRange;
+    const { startTime, endTime } = stationDetailDataRange;
 
     let style = null;
     let mask = null;
     if (StationDetailVisible) {
       style = { width: 420 };
       mask = <div className={styles.detailPlaneMask} onClick={this.ClosePlane} />;
-
-      if (startTime === undefined || endTime === undefined) {
-        const DateNow = new Date();
-        const YYYY = DateNow.getFullYear();
-        const M = DateNow.getMonth() + 1;
-        const MM = M.length === 2 ? M : '0' + M;
-        const DD = DateNow.getDate();
-        const HH = DateNow.getHours();
-        const mm = DateNow.getMinutes();
-        const ss = DateNow.getSeconds();
-        endTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
-        startTime = YYYY + '-' + MM + '-' + (DD - 1) + ' ' + HH + ':' + mm + ':' + ss;
-      }
     }
 
     const columns = [
@@ -113,11 +100,7 @@ class DetailPlane extends Component {
                 <RangePicker
                   onChange={this.FatchData}
                   style={{ width: '100%' }}
-                  value={
-                    startTime === undefined || endTime === undefined
-                      ? null
-                      : [moment(startTime, dateFormat), moment(endTime, dateFormat)]
-                  }
+                  value={[moment(startTime, dateFormat), moment(endTime, dateFormat)]}
                   format={dateFormat}
                   placeholder={['开始时间', '结束时间']}
                 />
@@ -125,7 +108,12 @@ class DetailPlane extends Component {
             </Row>
             <Row>
               <Col xl={24} lg={24} md={24} sm={48} xs={48}>
-                <Bar
+                液位变化趋势
+              </Col>
+            </Row>
+            <Row>
+              <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+                <MiniArea
                   height={292}
                   title={
                     <FormattedMessage

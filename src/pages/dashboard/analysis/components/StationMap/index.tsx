@@ -21,6 +21,7 @@ class StationMap extends Component {
   state = {
     mapCenter: undefined,
     OnlineFilterCurState: { Online: true, Offline: true },
+    AlarmFilterCurState: { Normal: true, Alarm: true },
 
     StationDetailVisible: false,
     ShowStationExtData: null,
@@ -40,15 +41,23 @@ class StationMap extends Component {
     let { startTime, endTime } = stationDetailDataRange;
     if (startTime === undefined || endTime === undefined) {
       const DateNow = new Date();
-      const YYYY = DateNow.getFullYear();
-      const M = DateNow.getMonth() + 1;
-      const MM = M.length === 2 ? M : '0' + M;
-      const DD = DateNow.getDate();
-      const HH = DateNow.getHours();
-      const mm = DateNow.getMinutes();
-      const ss = DateNow.getSeconds();
+      let YYYY = DateNow.getFullYear();
+      let MM = DateNow.getMonth() + 1;
+      let DD = DateNow.getDate();
+      let HH = DateNow.getHours();
+      let mm = DateNow.getMinutes();
+      let ss = DateNow.getSeconds();
       endTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
-      startTime = YYYY + '-' + MM + '-' + (DD - 1) + ' ' + HH + ':' + mm + ':' + ss;
+
+      DateNow.setTime(DateNow.getTime() - 24 * 60 * 60 * 1000);
+      YYYY = DateNow.getFullYear();
+      MM = DateNow.getMonth() + 1;
+      DD = DateNow.getDate();
+      HH = DateNow.getHours();
+      mm = DateNow.getMinutes();
+      ss = DateNow.getSeconds();
+      startTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
+
       FatchStationDetail({
         stationId: extData.id,
         stationDetailDataRange: { startTime: startTime, endTime: endTime },
@@ -74,9 +83,15 @@ class StationMap extends Component {
     });
   };
 
+  AlarmFilterCallBack = AlarmFilterCurState => {
+    this.setState({
+      AlarmFilterCurState,
+    });
+  };
+
   // initialize map markers according to props.stationsData
   RenderMarker = () => {
-    const { OnlineFilterCurState } = this.state;
+    const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
     const { stationsData } = this.props;
     if (stationsData === undefined || stationsData.total === undefined) return null;
     const res = [];
@@ -87,11 +102,15 @@ class StationMap extends Component {
       const dataUpdateTimeDate = new Date(dataUpdateTimeStri.replace(/-/g, '/')).getTime();
       const fourHourBeforeDate = Date.now() - 1000 * 60 * 60 * 4;
       const Online = dataUpdateTimeDate >= fourHourBeforeDate;
+      const Alarm = stationData.metadata.alarmLevel > 0;
 
       //Filter
       //OnlineFilter
       if (OnlineFilterCurState.Online === false && Online === true) continue;
       if (OnlineFilterCurState.Offline === false && Online === false) continue;
+      //AlarmFilter
+      if (AlarmFilterCurState.Normal === false && Alarm === false) continue;
+      if (AlarmFilterCurState.Alarm === false && Alarm === true) continue;
 
       res.push(CustomMarker(stationData, Online, this.ShowStationDetail));
     }
@@ -101,8 +120,10 @@ class StationMap extends Component {
   render() {
     const { mapCenter } = this.state;
 
-    const { OnlineFilterCurState } = this.state;
+    // Filter Status
+    const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
 
+    // Detail Data
     const { StationDetailVisible, ShowStationExtData } = this.state;
 
     //const plugins = ['MapType', 'OverView', 'Scale', 'ToolBar', 'ControlBar'];
@@ -118,6 +139,8 @@ class StationMap extends Component {
         <ToolBar
           OnlineFilterCurState={OnlineFilterCurState}
           OnlineFilterCallBack={this.OnlineFilterCallBack}
+          AlarmFilterCurState={AlarmFilterCurState}
+          AlarmFilterCallBack={this.AlarmFilterCallBack}
         />
 
         <DetailPlane

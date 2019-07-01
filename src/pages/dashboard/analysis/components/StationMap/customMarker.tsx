@@ -5,7 +5,7 @@ import { Marker } from 'react-amap';
 import styles from './index.less';
 
 const zIndex = 100;
-const offsetSmall = { x: -13, y: -35 };
+const offsetSmall = { x: -13, y: -32 };
 const offsetLarge = { x: -13, y: -260 };
 
 const markerEvents = {
@@ -36,7 +36,8 @@ const renderMarker = extData => {
   let color = null;
   let borderTop = '6px solid gray';
   if (Online === false) {
-    count = <Icon type="disconnect" />;
+    color = 'gray';
+    count = <Icon type="disconnect" style={{ backgroundColor: 'transparent' }} />;
   } else
     switch (alarmLevel) {
       case 0:
@@ -56,7 +57,7 @@ const renderMarker = extData => {
 
   return (
     <>
-      <Badge count={count} overflowCount={9999}>
+      <Badge count={count} overflowCount={9999} style={{ backgroundColor: color }}>
         <Tag className={styles.small} color={color}>
           {name}
         </Tag>
@@ -76,6 +77,7 @@ const renderMarkerHover = extData => {
   let color = null;
   let borderTop = '6px solid gray';
   if (Online === false) {
+    color = 'gray';
     count = <Icon type="disconnect" />;
   } else
     switch (alarmLevel) {

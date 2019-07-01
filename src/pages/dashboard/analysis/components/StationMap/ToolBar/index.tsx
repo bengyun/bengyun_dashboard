@@ -3,6 +3,7 @@ import { Icon, List, Popover, Button } from 'antd';
 import styles from './index.less';
 
 import OnlineFilter from './OnlineFilter';
+import AlarmFilter from './AlarmFilter';
 
 /* for remember
 props = {
@@ -20,10 +21,18 @@ class ToolBar extends Component {
     super(props);
   }
 
-  OnlineFilter = () => {
+  OnlineFilterItem = () => {
     return (
-      <Popover placement="right" title="" content={OnlineFilter(this.props)} trigger="click">
-        Online
+      <Popover placement="left" title="" content={OnlineFilter(this.props)} trigger="hover">
+        在线
+      </Popover>
+    );
+  };
+
+  AlarmFilterItem = () => {
+    return (
+      <Popover placement="left" title="" content={AlarmFilter(this.props)} trigger="hover">
+        警报
       </Popover>
     );
   };
@@ -39,7 +48,8 @@ class ToolBar extends Component {
           footer={null}
           bordered
         >
-          <List.Item>{this.OnlineFilter()}</List.Item>
+          <List.Item>{this.OnlineFilterItem()}</List.Item>
+          <List.Item>{this.AlarmFilterItem()}</List.Item>
         </List>
       );
     } else {
@@ -49,9 +59,9 @@ class ToolBar extends Component {
 
   RenderIcon = () => {
     const { ShowToolList } = this.state;
-    let type = 'up-circle';
-    if (ShowToolList) type = 'down-circle';
-    return <Icon type={type} style={{ fontSize: 20 }} onClick={this.IconClick} />;
+    let type = 'caret-up';
+    if (ShowToolList) type = 'caret-down';
+    return <Icon type={type} theme="filled" style={{ fontSize: 20 }} onClick={this.IconClick} />;
   };
 
   IconClick = () => {
