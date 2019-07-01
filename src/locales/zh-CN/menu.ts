@@ -1,6 +1,6 @@
 export default {
   'menu.welcome': '欢迎',
-  'menu.analysis': '数据分析',
+  'menu.analysis': '信息中心',
   'menu.more-blocks': '更多区块',
   'menu.home': '首页',
   'menu.login': '登录',

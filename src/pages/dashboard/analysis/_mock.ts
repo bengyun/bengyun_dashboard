@@ -122,13 +122,13 @@ const stationsData: IStationsList = {
             name: '350QZB-70',
             power: '18.5KW',
             lift: '5m',
-            flow: 'null',
+            flow: '-',
           },
           {
             name: '350QZB-70',
             power: '18.5KW',
             lift: '5m',
-            flow: 'null',
+            flow: '-',
           },
         ],
         position: {

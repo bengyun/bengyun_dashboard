@@ -126,7 +126,7 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
       <GridContent>
         <React.Fragment>
           <Suspense fallback={<PageLoading />}>
-            <div style={{ width: '100%', height: '700px' }}>
+            <div style={{ width: '100%', height: '780px' }}>
               <StationMap
                 loading={loadingStationsData}
                 stationsData={stationsData}

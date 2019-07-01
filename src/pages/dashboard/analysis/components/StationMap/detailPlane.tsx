@@ -100,7 +100,11 @@ class DetailPlane extends Component {
                 <RangePicker
                   onChange={this.FatchData}
                   style={{ width: '100%' }}
-                  value={[moment(startTime, dateFormat), moment(endTime, dateFormat)]}
+                  value={
+                    startTime === undefined || endTime === undefined
+                      ? null
+                      : [moment(startTime, dateFormat), moment(endTime, dateFormat)]
+                  }
                   format={dateFormat}
                   placeholder={['开始时间', '结束时间']}
                 />

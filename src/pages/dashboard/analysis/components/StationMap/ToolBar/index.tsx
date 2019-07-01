@@ -24,7 +24,7 @@ class ToolBar extends Component {
   OnlineFilterItem = () => {
     return (
       <Popover placement="left" title="" content={OnlineFilter(this.props)} trigger="hover">
-        在线
+        <span style={{ cursor: 'pointer' }}>在线</span>
       </Popover>
     );
   };
@@ -32,7 +32,7 @@ class ToolBar extends Component {
   AlarmFilterItem = () => {
     return (
       <Popover placement="left" title="" content={AlarmFilter(this.props)} trigger="hover">
-        警报
+        <span style={{ cursor: 'pointer' }}>警报</span>
       </Popover>
     );
   };
@@ -59,9 +59,11 @@ class ToolBar extends Component {
 
   RenderIcon = () => {
     const { ShowToolList } = this.state;
-    let type = 'caret-up';
-    if (ShowToolList) type = 'caret-down';
-    return <Icon type={type} theme="filled" style={{ fontSize: 20 }} onClick={this.IconClick} />;
+    let type = 'caret-down';
+    if (ShowToolList) type = 'caret-up';
+    return (
+      <Icon type={type} theme="filled" style={{ fontSize: '20px' }} onClick={this.IconClick} />
+    );
   };
 
   IconClick = () => {
@@ -75,8 +77,8 @@ class ToolBar extends Component {
     const { ShowToolList } = this.state;
     return (
       <div className={styles.toolBar} style={{ textAlign: 'center' }}>
-        {this.RenderToolList()}
         {this.RenderIcon()}
+        {this.RenderToolList()}
       </div>
     );
   }

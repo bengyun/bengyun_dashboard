@@ -34,23 +34,23 @@ const renderMarker = extData => {
 
   let count = level;
   let color = null;
-  let borderTop = '6px solid gray';
+  let borderTop = '10px solid gray';
   if (Online === false) {
     color = 'gray';
     count = <Icon type="disconnect" style={{ backgroundColor: 'transparent' }} />;
   } else
     switch (alarmLevel) {
       case 0:
-        color = 'cyan';
-        borderTop = '6px solid ' + color;
+        color = 'blue';
+        borderTop = '10px solid ' + color;
         break;
       case 1:
         color = 'orange';
-        borderTop = '6px solid ' + color;
+        borderTop = '10px solid ' + color;
         break;
       case 2:
-        color = 'magenta';
-        borderTop = '6px solid ' + color;
+        color = 'red';
+        borderTop = '10px solid ' + color;
         break;
       default:
     }
@@ -75,23 +75,23 @@ const renderMarkerHover = extData => {
 
   let count = level;
   let color = null;
-  let borderTop = '6px solid gray';
+  let borderTop = '10px solid gray';
   if (Online === false) {
     color = 'gray';
     count = <Icon type="disconnect" />;
   } else
     switch (alarmLevel) {
       case 0:
-        color = 'cyan';
-        borderTop = '6px solid ' + color;
+        color = 'blue';
+        borderTop = '10px solid ' + color;
         break;
       case 1:
         color = 'orange';
-        borderTop = '6px solid ' + color;
+        borderTop = '10px solid ' + color;
         break;
       case 2:
-        color = 'magenta';
-        borderTop = '6px solid ' + color;
+        color = 'red';
+        borderTop = '10px solid ' + color;
         break;
       default:
     }
