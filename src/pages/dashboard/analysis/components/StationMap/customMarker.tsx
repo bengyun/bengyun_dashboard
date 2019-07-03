@@ -10,6 +10,7 @@ const offsetLarge = { x: -13, y: -260 };
 
 const markerEvents = {
   mouseover: e => {
+    console.log('mouseover');
     const marker = e.target;
     // Move to top while cursor hover
     marker.setzIndex(zIndex + 1);
@@ -18,6 +19,7 @@ const markerEvents = {
     marker.render(renderMarkerHover);
   },
   mouseout: e => {
+    console.log('mouseout');
     const marker = e.target;
     // Move to default after cursor hover
     marker.setzIndex(zIndex);
@@ -55,6 +57,7 @@ const renderMarker = extData => {
       default:
     }
 
+  console.log('renderMarker');
   return (
     <>
       <Badge count={count} overflowCount={9999} style={{ backgroundColor: color }}>
@@ -96,6 +99,7 @@ const renderMarkerHover = extData => {
       default:
     }
 
+  console.log('renderMarkerHover');
   return (
     <>
       <Card size="small" title={name} className={styles.large}>
@@ -138,6 +142,7 @@ const renderMarkerHover = extData => {
 // But can be made as function
 const CustomMarker = (stationData, Online, showDetailOf) => {
   const extData = { ...stationData, Online, showDetailOf };
+  console.log('CustomMarker');
   return (
     <Marker
       key={stationData.key}

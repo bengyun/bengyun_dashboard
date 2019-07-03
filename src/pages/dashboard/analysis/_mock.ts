@@ -65,6 +65,40 @@ const stationsData: IStationsList = {
   limit: 10,
   stations: [
     {
+      id: '3ffb3880-d1e6-4edd-acd9-4294123aff5b',
+      name: '环湖路窨井1',
+      key: 'b1996995-237a-4552-94b2-4294123aff5b',
+      metadata: {
+        address: '浙江省宁波市镇海区环湖西路169号',
+        pumps: [],
+        position: {
+          longitude: 121.514097,
+          latitude: 30.039444,
+        },
+        level: 50,
+        alarmLevel: 0,
+        voltage: 210,
+        dataUpdateTime: DataTime[0],
+      },
+    },
+    {
+      id: '3ffb3880-d1e6-4edd-acd9-4294123aff5c',
+      name: '环湖路窨井2',
+      key: 'b1996995-237a-4552-94b2-4294123aff5c',
+      metadata: {
+        address: '浙江省宁波市镇海区环湖西路170号',
+        pumps: [],
+        position: {
+          longitude: 121.534097,
+          latitude: 30.039664,
+        },
+        level: 50,
+        alarmLevel: 0,
+        voltage: 210,
+        dataUpdateTime: DataTime[0],
+      },
+    },
+    {
       id: '3ffb3880-d1e6-4edd-acd9-4294d013f35b',
       name: '郎家坪泵站',
       key: 'b1996995-237a-4552-94b2-83ec2e92a040',
@@ -89,16 +123,16 @@ const stationsData: IStationsList = {
         address: '浙江省宁波市镇海区王岙巷2',
         pumps: [
           {
-            name: '',
-            power: '',
-            lift: '',
-            flow: '',
+            name: '-',
+            power: '-',
+            lift: '-',
+            flow: '-',
           },
           {
-            name: '',
-            power: '',
-            lift: '',
-            flow: '',
+            name: '-',
+            power: '-',
+            lift: '-',
+            flow: '-',
           },
         ],
         position: {
@@ -248,6 +282,14 @@ const createHistoryLevel = () => {
 };
 
 const fakeStationDetailData = [
+  {
+    stationId: '3ffb3880-d1e6-4edd-acd9-4294123aff5b',
+    historyLevel: createHistoryLevel(),
+  },
+  {
+    stationId: '3ffb3880-d1e6-4edd-acd9-4294123aff5c',
+    historyLevel: createHistoryLevel(),
+  },
   {
     stationId: '3ffb3880-d1e6-4edd-acd9-4294d013f35b',
     historyLevel: createHistoryLevel(),

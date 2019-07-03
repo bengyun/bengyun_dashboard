@@ -24,7 +24,8 @@ class ToolBar extends Component {
   OnlineFilterItem = () => {
     return (
       <Popover placement="left" title="" content={OnlineFilter(this.props)} trigger="hover">
-        <span style={{ cursor: 'pointer' }}>在线</span>
+        <Icon type="disconnect" />
+        <span style={{ cursor: 'pointer' }}> 在线</span>
       </Popover>
     );
   };
@@ -32,7 +33,8 @@ class ToolBar extends Component {
   AlarmFilterItem = () => {
     return (
       <Popover placement="left" title="" content={AlarmFilter(this.props)} trigger="hover">
-        <span style={{ cursor: 'pointer' }}>警报</span>
+        <Icon type="info-circle" />
+        <span style={{ cursor: 'pointer' }}> 警报</span>
       </Popover>
     );
   };

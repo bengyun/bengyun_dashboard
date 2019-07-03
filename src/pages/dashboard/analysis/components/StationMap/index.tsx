@@ -8,7 +8,7 @@ import DetailPlane from './detailPlane';
 import CustomMarker from './customMarker';
 import SearchPlane from './searchPlane';
 import ToolBar from './ToolBar';
-import PumpStatusPlane from './pumpStatusPlane';
+import EquipmentStatusPlane from './equipmentStatusPlane';
 
 /* Remember
 props = {
@@ -19,7 +19,7 @@ props = {
 
 class StationMap extends Component {
   state = {
-    mapCenter: undefined,
+    mapCenter: { longitude: 121.54, latitude: 30.01 },
     OnlineFilterCurState: { Online: true, Offline: true },
     AlarmFilterCurState: { Normal: true, Alarm: true },
 
@@ -129,7 +129,9 @@ class StationMap extends Component {
     //const plugins = ['MapType', 'OverView', 'Scale', 'ToolBar', 'ControlBar'];
     const plugins = ['Scale', 'ToolBar'];
     return (
-      <Map plugins={plugins} center={mapCenter}>
+      <Map plugins={plugins} center={mapCenter} zoom="13">
+        {this.RenderMarker()}
+
         <SearchPlane
           className={styles.searchPlane}
           placeholder="输入位置定位地图"
@@ -151,9 +153,7 @@ class StationMap extends Component {
           {...this.props}
         />
 
-        <PumpStatusPlane {...this.props} />
-
-        {this.RenderMarker()}
+        <EquipmentStatusPlane {...this.props} />
       </Map>
     );
   }

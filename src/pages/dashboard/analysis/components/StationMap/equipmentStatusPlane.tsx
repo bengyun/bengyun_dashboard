@@ -8,7 +8,7 @@ props = {
 };
 */
 
-class PumpStatusPlane extends Component {
+class EquipmentStatusPlane extends Component {
   state = {};
 
   constructor(props) {
@@ -20,12 +20,12 @@ class PumpStatusPlane extends Component {
   render() {
     const { pumpStatus } = this.props;
     return (
-      <div className={styles.pumpStatusPlane}>
+      <div className={styles.equipmentStatusPlane}>
         <Icon type="setting" theme="filled" />
-        工作水泵 {pumpStatus.working + ' / ' + pumpStatus.total}
+        工作设备 {pumpStatus.working + ' / ' + pumpStatus.total}
       </div>
     );
   }
 }
 
-export default PumpStatusPlane;
+export default EquipmentStatusPlane;

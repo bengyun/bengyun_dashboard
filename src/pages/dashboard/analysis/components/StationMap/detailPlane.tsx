@@ -56,6 +56,7 @@ class DetailPlane extends Component {
 
     const { startTime, endTime } = stationDetailDataRange;
 
+    // Mask
     let style = null;
     let mask = null;
     if (StationDetailVisible) {
@@ -63,6 +64,7 @@ class DetailPlane extends Component {
       mask = <div className={styles.detailPlaneMask} onClick={this.ClosePlane} />;
     }
 
+    // Pump Table
     const columns = [
       {
         title: '型号',
@@ -85,11 +87,14 @@ class DetailPlane extends Component {
         key: 'flow',
       },
     ];
-
     let dataSource = null;
     if (ShowStationExtData !== null && ShowStationExtData.metadata !== null)
       dataSource = ShowStationExtData.metadata.pumps;
+    let pumpTable = null;
+    if (dataSource !== null && dataSource.length > 0)
+      pumpTable = <Table dataSource={dataSource} columns={columns} />;
 
+    console.log('Render Detail');
     return (
       <>
         {mask}
@@ -111,7 +116,7 @@ class DetailPlane extends Component {
               </Col>
             </Row>
             <Row>
-              <Col xl={24} lg={24} md={24} sm={48} xs={48}>
+              <Col xl={24} lg={24} md={24} sm={48} xs={48} style={{ textAlign: 'center' }}>
                 液位变化趋势
               </Col>
             </Row>
@@ -131,7 +136,7 @@ class DetailPlane extends Component {
             </Row>
             <Row>
               <Col xl={24} lg={24} md={24} sm={48} xs={48}>
-                <Table dataSource={dataSource} columns={columns} />;
+                {pumpTable}
               </Col>
             </Row>
           </Card>
