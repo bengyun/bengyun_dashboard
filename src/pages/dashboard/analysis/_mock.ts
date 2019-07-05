@@ -314,7 +314,7 @@ const fakeStationDetailData = [
 
 function getFakeStationDetailData(req, res) {
   const params = req.query;
-  const { stationId, stationDetailDataRange } = params;
+  const { stationId, timeRange } = params;
 
   let targetStation = null;
   for (let idx = 0; idx < fakeStationDetailData.length; idx++) {
@@ -325,8 +325,8 @@ function getFakeStationDetailData(req, res) {
     res.send(null);
   } else {
     const historyLevel = [];
-    const startTime = new Date(stationDetailDataRange.startTime.replace(/-/g, '/')).getTime();
-    const endTime = new Date(stationDetailDataRange.endTime.replace(/-/g, '/')).getTime();
+    const startTime = new Date(timeRange.startTime.replace(/-/g, '/')).getTime();
+    const endTime = new Date(timeRange.endTime.replace(/-/g, '/')).getTime();
     for (let idx = 0; idx < targetStation.historyLevel.length; idx++) {
       const dataTime = new Date(targetStation.historyLevel[idx].x.replace(/-/g, '/')).getTime();
       if (dataTime >= startTime && dataTime <= endTime) {

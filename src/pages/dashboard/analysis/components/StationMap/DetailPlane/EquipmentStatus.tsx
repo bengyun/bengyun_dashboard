@@ -8,7 +8,7 @@ props = {
 };
 */
 
-class EquipmentStatusPlane extends Component {
+class EquipmentStatus extends Component {
   state = {};
 
   constructor(props) {
@@ -20,7 +20,7 @@ class EquipmentStatusPlane extends Component {
   render() {
     const { pumpStatus } = this.props;
     return (
-      <div className={styles.equipmentStatusPlane}>
+      <div className={styles.equipmentStatus}>
         <Icon type="setting" theme="filled" />
         工作设备 {pumpStatus.working + ' / ' + pumpStatus.total}
       </div>
@@ -28,4 +28,4 @@ class EquipmentStatusPlane extends Component {
   }
 }
 
-export default EquipmentStatusPlane;
+export default EquipmentStatus;

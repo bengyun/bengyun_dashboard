@@ -47,8 +47,6 @@ interface DashboardAnalysisState {}
 )
 class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState> {
   state: dashboardAnalysisState = {
-    stationId: null,
-    stationDetailDataRange: { startTime: undefined, endTime: undefined },
   };
   reqRef!: number;
   componentDidMount() {
@@ -79,11 +77,6 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
 
   // 地图侧边显示的操作
   FatchStationDetail = data => {
-    this.setState({
-      stationId: data.stationId,
-      stationDetailDataRange: data.stationDetailDataRange,
-    });
-
     const { dispatch } = this.props;
     dispatch({
       type: 'dashboardAnalysis/fetchStationDetailData',
@@ -91,11 +84,6 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
     });
   };
   ClearStationDetail = () => {
-    this.setState({
-      stationId: null,
-      stationDetailDataRange: { startTime: undefined, endTime: undefined },
-    });
-
     const { dispatch } = this.props;
     dispatch({
       type: 'dashboardAnalysis/clearStationDetailData',
@@ -103,7 +91,7 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
   };
 
   render() {
-    const { rangePickerValue, salesType, currentTabKey, stationDetailDataRange } = this.state;
+    const { rangePickerValue } = this.state;
 
     const {
       dashboardAnalysis,
@@ -132,7 +120,6 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
                 stationsData={stationsData}
                 pumpStatus={pumpStatus}
                 stationDetailData={stationDetailData}
-                stationDetailDataRange={stationDetailDataRange}
                 FatchStationDetail={this.FatchStationDetail}
                 ClearStationDetail={this.ClearStationDetail}
               />

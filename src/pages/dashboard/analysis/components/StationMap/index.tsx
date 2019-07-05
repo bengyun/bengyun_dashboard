@@ -4,11 +4,10 @@ import { Map, Marker } from 'react-amap';
 
 import styles from './index.less';
 
-import DetailPlane from './detailPlane';
+import DetailPlane from './DetailPlane';
 import CustomMarker from './customMarker';
 import SearchPlane from './searchPlane';
 import ToolBar from './ToolBar';
-import EquipmentStatusPlane from './equipmentStatusPlane';
 
 /* Remember
 props = {
@@ -23,7 +22,6 @@ class StationMap extends Component {
     OnlineFilterCurState: { Online: true, Offline: true },
     AlarmFilterCurState: { Normal: true, Alarm: true },
 
-    StationDetailVisible: false,
     ShowStationExtData: null,
   };
 
@@ -33,40 +31,12 @@ class StationMap extends Component {
 
   ShowStationDetail = extData => {
     this.setState({
-      StationDetailVisible: true,
       ShowStationExtData: extData,
     });
-
-    const { FatchStationDetail, stationDetailDataRange } = this.props;
-    let { startTime, endTime } = stationDetailDataRange;
-    if (startTime === undefined || endTime === undefined) {
-      const DateNow = new Date();
-      let YYYY = DateNow.getFullYear();
-      let MM = DateNow.getMonth() + 1;
-      let DD = DateNow.getDate();
-      let HH = DateNow.getHours();
-      let mm = DateNow.getMinutes();
-      let ss = DateNow.getSeconds();
-      endTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
-
-      DateNow.setTime(DateNow.getTime() - 24 * 60 * 60 * 1000);
-      YYYY = DateNow.getFullYear();
-      MM = DateNow.getMonth() + 1;
-      DD = DateNow.getDate();
-      HH = DateNow.getHours();
-      mm = DateNow.getMinutes();
-      ss = DateNow.getSeconds();
-      startTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
-
-      FatchStationDetail({
-        stationId: extData.id,
-        stationDetailDataRange: { startTime: startTime, endTime: endTime },
-      });
-    }
   };
+
   CloseStationDetail = () => {
     this.setState({
-      StationDetailVisible: false,
       ShowStationExtData: null,
     });
   };
@@ -124,12 +94,19 @@ class StationMap extends Component {
     const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
 
     // Detail Data
-    const { StationDetailVisible, ShowStationExtData } = this.state;
+    const { ShowStationExtData } = this.state;
 
     //const plugins = ['MapType', 'OverView', 'Scale', 'ToolBar', 'ControlBar'];
     const plugins = ['Scale', 'ToolBar'];
+	
+	const events = {
+      created: (ins) => {},
+      click: () => {this.CloseStationDetail()},
+    }
+	
     return (
-      <Map plugins={plugins} center={mapCenter} zoom="13">
+      <Map plugins={plugins} center={mapCenter} zoom="13" events={events}>
+
         {this.RenderMarker()}
 
         <SearchPlane
@@ -147,13 +124,11 @@ class StationMap extends Component {
 
         <DetailPlane
           loading={false}
-          StationDetailVisible={StationDetailVisible}
-          ShowStationExtData={ShowStationExtData}
+          stationExtData={ShowStationExtData}
           CloseStationDetail={this.CloseStationDetail}
           {...this.props}
         />
 
-        <EquipmentStatusPlane {...this.props} />
       </Map>
     );
   }
