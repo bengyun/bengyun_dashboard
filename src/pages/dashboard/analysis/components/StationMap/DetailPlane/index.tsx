@@ -53,7 +53,6 @@ class DetailPlane extends Component {
     } else {
       detailArea = (
         <>
-          <br />
           <Row>
             <Col
               span={12}
