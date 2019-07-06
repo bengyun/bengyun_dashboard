@@ -5,8 +5,8 @@ export async function getData() {
   return request('/api/fake_chart_data');
 }
 
-export async function getStationsData() {
-  return request('/api/stationsData');
+export async function getStationsData(region) {
+  return request(`/api/stationsData?${stringify(region)}`);
 }
 
 export async function getPumpStatus() {

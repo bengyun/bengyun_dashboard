@@ -7,7 +7,7 @@ import styles from './index.less';
 import DetailPlane from './DetailPlane';
 import CustomMarker from './customMarker';
 import SearchPlane from './searchPlane';
-import ToolBar from './ToolBar';
+import EquipmentStatus from './EquipmentStatus';
 
 /* Remember
 props = {
@@ -32,6 +32,7 @@ class StationMap extends Component {
   ShowStationDetail = extData => {
     this.setState({
       ShowStationExtData: extData,
+      mapCenter: extData.metadata.position,
     });
   };
 
@@ -63,6 +64,7 @@ class StationMap extends Component {
   RenderMarker = () => {
     const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
     const { stationsData } = this.props;
+
     if (stationsData === undefined || stationsData.total === undefined) return null;
     const res = [];
     for (let i = 0; i < stationsData.stations.length; i += 1) {
@@ -98,37 +100,33 @@ class StationMap extends Component {
 
     //const plugins = ['MapType', 'OverView', 'Scale', 'ToolBar', 'ControlBar'];
     const plugins = ['Scale', 'ToolBar'];
-	
-	const events = {
-      created: (ins) => {},
-      click: () => {this.CloseStationDetail()},
-    }
-	
+
+    const events = {
+      created: ins => {},
+      click: () => {
+        this.CloseStationDetail();
+      },
+    };
+
     return (
       <Map plugins={plugins} center={mapCenter} zoom="13" events={events}>
-
         {this.RenderMarker()}
 
-        <SearchPlane
-          className={styles.searchPlane}
-          placeholder="输入位置定位地图"
-          returnPoi={this.returnPoi}
-        />
-
-        <ToolBar
-          OnlineFilterCurState={OnlineFilterCurState}
-          OnlineFilterCallBack={this.OnlineFilterCallBack}
-          AlarmFilterCurState={AlarmFilterCurState}
-          AlarmFilterCallBack={this.AlarmFilterCallBack}
-        />
+        <SearchPlane placeholder="输入位置定位地图" returnPoi={this.returnPoi} {...this.props} />
 
         <DetailPlane
           loading={false}
           stationExtData={ShowStationExtData}
           CloseStationDetail={this.CloseStationDetail}
+          ShowStationDetail={this.ShowStationDetail}
+          OnlineFilterCurState={OnlineFilterCurState}
+          OnlineFilterCallBack={this.OnlineFilterCallBack}
+          AlarmFilterCurState={AlarmFilterCurState}
+          AlarmFilterCallBack={this.AlarmFilterCallBack}
           {...this.props}
         />
 
+        <EquipmentStatus {...this.props} />
       </Map>
     );
   }

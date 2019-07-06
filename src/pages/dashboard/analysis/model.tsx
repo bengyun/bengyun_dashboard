@@ -72,12 +72,12 @@ const Model: ModelType = {
         },
       });
     },
-    *fetchStationsData(_, { call, put }) {
-      const response = yield call(getStationsData);
+    *fetchStationsData({ payload }, { call, put }) {
+      const response = yield call(getStationsData, payload);
       yield put({
         type: 'save',
         payload: {
-          stationsData: response.stationsData,
+          stationsData: response,
         },
       });
     },

@@ -46,8 +46,7 @@ interface DashboardAnalysisState {}
   }),
 )
 class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState> {
-  state: dashboardAnalysisState = {
-  };
+  state: dashboardAnalysisState = {};
   reqRef!: number;
   componentDidMount() {
     const { dispatch } = this.props;
@@ -75,7 +74,17 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
     });
   }
 
-  // 地图侧边显示的操作
+  // 获取站点列表
+  FetchStationList = region => {
+    const { dispatch } = this.props;
+
+    dispatch({
+      type: 'dashboardAnalysis/fetchStationsData',
+      payload: { region: JSON.stringify(region) },
+    });
+  };
+
+  // 获取某个站点的详细信息
   FatchStationDetail = data => {
     const { dispatch } = this.props;
     dispatch({
@@ -118,6 +127,7 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
               <StationMap
                 loading={loadingStationsData}
                 stationsData={stationsData}
+                FetchStationList={this.FetchStationList}
                 pumpStatus={pumpStatus}
                 stationDetailData={stationDetailData}
                 FatchStationDetail={this.FatchStationDetail}

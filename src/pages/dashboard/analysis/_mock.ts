@@ -75,6 +75,7 @@ const stationsData: IStationsList = {
           longitude: 121.514097,
           latitude: 30.039444,
         },
+        region: ['zhejiang', 'ningbo', 'jiulonghu'],
         level: 50,
         alarmLevel: 0,
         voltage: 210,
@@ -92,6 +93,7 @@ const stationsData: IStationsList = {
           longitude: 121.534097,
           latitude: 30.039664,
         },
+        region: ['zhejiang', 'ningbo', 'jiulonghu'],
         level: 50,
         alarmLevel: 0,
         voltage: 210,
@@ -109,6 +111,7 @@ const stationsData: IStationsList = {
           longitude: 121.512097,
           latitude: 30.049444,
         },
+        region: ['zhejiang', 'ningbo', 'jiulonghu'],
         level: 50,
         alarmLevel: 1,
         voltage: 210,
@@ -139,6 +142,7 @@ const stationsData: IStationsList = {
           longitude: 121.553233,
           latitude: 30.031005,
         },
+        region: ['zhejiang', 'ningbo', 'jiulonghu'],
         level: 75,
         alarmLevel: 2,
         voltage: 230,
@@ -169,6 +173,7 @@ const stationsData: IStationsList = {
           longitude: 121.546947,
           latitude: 30.005627,
         },
+        region: ['zhejiang', 'ningbo', 'luotuo'],
         level: 85,
         alarmLevel: 0,
         voltage: 240,
@@ -205,6 +210,7 @@ const stationsData: IStationsList = {
           longitude: 121.555785,
           latitude: 30.022581,
         },
+        region: ['zhejiang', 'ningbo', 'jiulonghu'],
         level: 100,
         alarmLevel: 1,
         voltage: 220,
@@ -241,6 +247,7 @@ const stationsData: IStationsList = {
           longitude: 121.568672,
           latitude: 29.972112,
         },
+        region: ['zhejiang', 'ningbo', 'luotuo'],
         level: 125,
         alarmLevel: 2,
         voltage: 200,
@@ -269,9 +276,31 @@ const getFakePumpPower: IPumpPower = {
   pumpPower,
 };
 
-const getFakeStationsData: IStationsList = {
-  stationsData,
-};
+function getFakeStationsData(req, res) {
+  const params = req.query;
+  const { region } = params;
+
+  if (region === undefined) {
+    res.send(stationsData);
+  } else {
+    const regionArray = JSON.parse(region);
+    const data = { stations: [] };
+    for (let idx = 0; idx < stationsData.stations.length; idx++) {
+      if (
+        (stationsData.stations[idx].metadata.region[0] === regionArray[0] ||
+          regionArray[0] === 'all') &&
+        (stationsData.stations[idx].metadata.region[1] === regionArray[1] ||
+          regionArray[1] === 'all') &&
+        (stationsData.stations[idx].metadata.region[2] === regionArray[2] ||
+          regionArray[2] === 'all')
+      ) {
+        data.stations.push(stationsData.stations[idx]);
+      }
+    }
+    data.total = data.stations.length;
+    res.send(data);
+  }
+}
 
 const createHistoryLevel = () => {
   const historyLevel = [];
