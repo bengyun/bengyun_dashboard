@@ -1,5 +1,6 @@
 import { stringify } from 'qs';
 import request from '@/utils/request';
+import { getToken } from '@/utils/authority';
 
 export async function fakeAccountLogin(params) {
   return request('/api/login/account', {
@@ -123,4 +124,29 @@ export async function queryNotices(params = {}) {
 
 export async function getFakeCaptcha(mobile) {
   return request(`/api/captcha?mobile=${mobile}`);
+}
+
+export async function accountLogin(params) {
+  return request('/tokens', {
+    method: 'POST',
+    body: params,
+  });
+}
+
+export async function getThings() {
+  const token = getToken();
+  return request('/things', {
+    headers: {
+      Authorization: token,
+    }
+  });
+}
+
+export async function getChannels() {
+  const token = getToken();
+  return request('/channels', {
+    headers: {
+      Authorization: token,
+    }
+  });
 }

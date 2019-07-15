@@ -3,8 +3,8 @@ import { Reducer, AnyAction } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { stringify, parse } from 'qs';
 
-import { fakeAccountLogin } from '@/services/api';
-import { setAuthority } from '@/utils/authority';
+import { fakeAccountLogin, accountLogin } from '@/services/api';
+import { setAuthority, setToken } from '@/utils/authority';
 import { reloadAuthorized } from '@/utils/Authorized';
 
 export function getPageQuery() {
@@ -37,7 +37,19 @@ const Model: ModelType = {
 
   effects: {
     *login({ payload }, { call, put }) {
-      const response = yield call(fakeAccountLogin, payload);
+      payload = {
+        ...payload,
+        "email": payload.userName,
+      }
+      let response = yield call(accountLogin, payload);
+      if (response.token) {
+        response = {
+          ...response,
+          "status": "ok",
+          "type": "account",
+          "currentAuthority": "admin",
+        };
+      }
       yield put({
         type: 'changeLoginStatus',
         payload: response,
@@ -90,6 +102,7 @@ const Model: ModelType = {
   reducers: {
     changeLoginStatus(state, { payload }) {
       setAuthority(payload.currentAuthority);
+      setToken(payload.token);
       return {
         ...state,
         status: payload.status,

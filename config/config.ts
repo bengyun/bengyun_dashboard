@@ -112,6 +112,23 @@ export default {
   //     pathRewrite: { '^/server': '' },
   //   },
   // },
+  proxy: {
+    '/tokens': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+      //pathRewrite: { '^/bengyun': '' },
+    },
+    '/things': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+      //pathRewrite: { '^/bengyun': '' },
+    },
+    '/channels': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+      //pathRewrite: { '^/bengyun': '' },
+    },
+  },
   ignoreMomentLocale: true,
   lessLoaderOptions: {
     javascriptEnabled: true,
