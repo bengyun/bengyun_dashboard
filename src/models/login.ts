@@ -3,7 +3,7 @@ import { Reducer, AnyAction } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { stringify, parse } from 'qs';
 
-import { fakeAccountLogin, accountLogin } from '@/services/api';
+import { accountLogin } from '@/services/api';
 import { setAuthority, setToken } from '@/utils/authority';
 import { reloadAuthorized } from '@/utils/Authorized';
 
@@ -39,15 +39,15 @@ const Model: ModelType = {
     *login({ payload }, { call, put }) {
       payload = {
         ...payload,
-        "email": payload.userName,
-      }
+        email: payload.userName,
+      };
       let response = yield call(accountLogin, payload);
       if (response.token) {
         response = {
           ...response,
-          "status": "ok",
-          "type": "account",
-          "currentAuthority": "admin",
+          status: 'ok',
+          type: 'account',
+          currentAuthority: 'admin',
         };
       }
       yield put({

@@ -1,44 +1,50 @@
-export interface IPumpStatu {
-  working: int;
-  total: int;
-  runtime: int;
+export interface IMetaData {
+  device: string;
+  name: string;
+  type: string;
+  location: {
+    address: string;
+    gps: {
+      latitude: number;
+      longitude: number;
+    };
+  };
+  reporting: {
+    updateTime: string | undefined;
+    batteryVoltage: number | undefined;
+    water_level: {
+      current: number | undefined;
+      critical: number;
+      depth: number;
+      overflow: number;
+      warning: number;
+    };
+  };
 }
 
-export interface IpumpMaintain {
-  breakdownPump: int;
-  breakEveryDay: [];
-  repairEveryDay: [];
-  repairPump: int;
-}
-
-export interface IPumpPower {
-  currentPower: int;
-  trendPower: [];
-  totalPower: int;
-}
-
-export interface IStation {
+export interface IThing {
   id: string;
   name: string;
   key: string;
-  metadata: Object;
+  metadata: IMetaData;
 }
 
 export interface IStationsList {
   total: number;
   offset: number;
   limit: number;
-  stations: IStation[];
+  things: IThing[];
 }
 
 export interface IStationDetailData {
-  historyLevel: [];
+  historyLevel: {
+    name: 'water_level' | 'battery_voltage' | undefined;
+    time: string;
+    value: string;
+  }[];
 }
 
 export interface IAnalysisData {
-  pumpStatus: IPumpStatu;
-  pumpMaintain: IpumpMaintain;
   stationsData: IStationsList;
-  pumpPower: IPumpPower;
   stationDetailData: IStationDetailData;
 }

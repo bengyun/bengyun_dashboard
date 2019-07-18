@@ -4,15 +4,20 @@ import styles from './index.less';
 
 const { Option } = Select;
 
-/* for remember
-props = {
-  returnPoi       : Function,
-  placeholder     : string
-  className       : object
-};
-*/
+interface SearchPlaneProps {
+  placeholder: string;
+  returnPoi: Function;
+  FetchStationList: Function;
+}
 
-class SearchPlane extends Component {
+interface SearchPlaneState {
+  stType: boolean;
+  data: object[];
+  value: object | undefined;
+  stDefaultRegion: object[];
+}
+
+class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
   state = {
     stType: false,
 
@@ -21,45 +26,44 @@ class SearchPlane extends Component {
 
     stDefaultRegion: [],
   };
-
-  constructor(props) {
+  placeSearch: { search: Function } | null = null;
+  constructor(props: SearchPlaneProps) {
     // when need to use props in constructor, use super(props)
     // when need not to use props in constructor, use super()
     super(props);
     const that = this;
+    // @ts-ignore
     window.AMap.service('AMap.PlaceSearch', function() {
+      // @ts-ignore
       that.placeSearch = new window.AMap.PlaceSearch({});
     });
   }
 
   /*   高德地图的搜索功能   */
-  handleSearch = value => {
+  handleSearch = (value: any) => {
     const that = this;
-    this.placeSearch.search(value, (status, result) => {
-      if (status === 'complete') {
-        const searchResult = result.poiList.pois;
-        const data = searchResult;
-        that.setState({ data });
-      }
-    });
+    if (that.placeSearch != null) {
+      that.placeSearch.search(value, (status: any, result: any) => {
+        if (status === 'complete') {
+          const data = result.poiList.pois;
+          that.setState({ data });
+        }
+      });
+    }
   };
-  handleChange = value => {
+  handleChange = (value: any) => {
     this.setState({ value });
 
-    let callback = () => {};
     const { returnPoi } = this.props;
-    if (returnPoi !== undefined) callback = returnPoi;
-
     const { data } = this.state;
-    const poi = data.find(item => {
+    const poi = data.find((item: { id: any }) => {
       return item.id === value;
     });
-
-    callback(poi);
+    if (returnPoi !== undefined) returnPoi(poi);
   };
   getOptions() {
     const { data } = this.state;
-    return data.map(item => <Option key={item.id}>{item.name}</Option>);
+    return data.map((item: { id: any; name: any }) => <Option key={item.id}>{item.name}</Option>);
   }
   RenderMapSearch = () => {
     const { value } = this.state;
@@ -84,7 +88,7 @@ class SearchPlane extends Component {
   /*   高德地图的搜索功能   */
 
   /*   自定义的区域筛选功能   */
-  onRegionSelectChange = region => {
+  onRegionSelectChange = (region: any) => {
     this.setState({
       stDefaultRegion: region,
     });

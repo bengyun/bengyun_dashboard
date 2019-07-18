@@ -123,7 +123,7 @@ export default {
       changeOrigin: true,
       //pathRewrite: { '^/bengyun': '' },
     },
-    '/channels': {
+    '/api/messages': {
       target: 'http://47.88.225.240/',
       changeOrigin: true,
       //pathRewrite: { '^/bengyun': '' },

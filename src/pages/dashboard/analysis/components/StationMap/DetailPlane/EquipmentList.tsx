@@ -1,34 +1,42 @@
 import React, { Component } from 'react';
 import { List } from 'antd';
 import styles from './index.less';
+import { IStationsList, IThing } from '@/pages/dashboard/analysis/data';
 
-/* for remember
-props = {
-  pumpStatus      : object
-};
-*/
+interface EquipmentListProps {
+  stationsData: IStationsList /* 设备列表 */;
+  ShowStationDetail: Function /* 设置选中设备 */;
+  OnlineFilterCurState: object;
+  OnlineFilterCallBack: Function;
+  AlarmFilterCurState: object;
+  AlarmFilterCallBack: Function;
+}
 
-class EquipmentList extends Component {
-  state = {};
+interface EquipmentListState {}
 
-  constructor(props) {
+class EquipmentList extends Component<EquipmentListProps, EquipmentListState> {
+  state: EquipmentListState = {};
+
+  constructor(props: EquipmentListProps) {
     // when need to use props in constructor, use super(props)
     // when need not to use props in constructor, use super()
     super(props);
   }
 
-  onItemClick = station => {
+  onItemClick = (station: IThing) => {
     const { ShowStationDetail } = this.props;
     ShowStationDetail(station);
   };
 
   filterListItem = () => {
     const { stationsData } = this.props;
-    const { OnlineFilterCurState, AlarmFilterCurState } = this.props;
     const res = [];
 
-    for (let i = 0; i < stationsData.stations.length; i += 1) {
-      const stationData = stationsData.stations[i];
+    for (let i = 0; i < stationsData.things.length; i += 1) {
+      const stationData = stationsData.things[i];
+      if (stationData.metadata.location === undefined) continue;
+      /*
+      const stationData = stationsData.things[i];
       const metadata = stationData.metadata;
       const dataUpdateTimeStri = metadata.dataUpdateTime;
       const dataUpdateTimeDate = new Date(dataUpdateTimeStri.replace(/-/g, '/')).getTime();
@@ -43,16 +51,14 @@ class EquipmentList extends Component {
       //AlarmFilter
       if (AlarmFilterCurState.Normal === false && Alarm === false) continue;
       if (AlarmFilterCurState.Alarm === false && Alarm === true) continue;
-
-      res.push(stationData);
+      */
+      /* 暂时无效了筛选功能 */ res.push(stationData);
     }
-
     return res;
   };
 
   render() {
     const stations = this.filterListItem();
-
     return (
       <div className={styles.equipmentList}>
         <List
@@ -66,10 +72,10 @@ class EquipmentList extends Component {
               onClick={() => {
                 this.onItemClick(item);
               }}
-              actions={[<span> {item.metadata.dataUpdateTime} </span>]}
+              actions={[<span key={item.key}> {item.metadata.reporting.updateTime} </span>]}
             >
-              <List.Item.Meta title={item.name} description={item.metadata.address} />
-              液位:{item.metadata.level} 电压:{item.metadata.voltage}
+              <List.Item.Meta title={item.name} description={item.metadata.location.address} />
+              液位:{item.metadata.reporting.water_level.current}
             </List.Item>
           )}
         />

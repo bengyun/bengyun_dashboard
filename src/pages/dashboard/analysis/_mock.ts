@@ -1,3 +1,4 @@
+/*
 import moment from 'moment';
 import { IAnalysisData, IPumpStatu, IpumpMaintain, IStationsList } from './data';
 
@@ -376,3 +377,4 @@ export default {
   'GET  /api/pumpPower': getFakePumpPower,
   'GET  /api/StationDetailData': getFakeStationDetailData,
 };
+*/
