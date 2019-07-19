@@ -18,6 +18,7 @@ interface StationMapProps {
 
 interface StationMapState {
   mapCenter: object;
+  mapZoom: number | null;
   OnlineFilterCurState: object;
   AlarmFilterCurState: object;
   ShowStationExtData: IThing | null;
@@ -26,21 +27,50 @@ interface StationMapState {
 class StationMap extends Component<StationMapProps, StationMapState> {
   state = {
     mapCenter: { longitude: 121.54, latitude: 29.85 },
+    mapZoom: 11,
     OnlineFilterCurState: { Online: true, Offline: true },
     AlarmFilterCurState: { Normal: true, Alarm: true },
 
     ShowStationExtData: null,
   };
 
+  Map = null;
+
   constructor(props: any) {
     super(props);
   }
 
+  CustomMapComponent = (props: any) => {
+    // props.__ele__;
+    // props.__map__;
+    // your code here
+    this.Map = props.__map__;
+    return null;
+  };
+
+  Bd09llToGcj02ll = (gps: { latitude: number; longitude: number }) => {
+    const PI = (3.14159265358979324 * 3000.0) / 180.0;
+    const x = gps.longitude - 0.0065;
+    const y = gps.latitude - 0.006;
+    const k = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * PI);
+    const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * PI);
+    const longitude = k * Math.cos(theta);
+    const latitude = k * Math.sin(theta);
+    return { latitude, longitude };
+  };
+
   ShowStationDetail = (extData: IThing) => {
+    const Bd09ll = extData.metadata.location.gps;
+    const Gcj02ll = this.Bd09llToGcj02ll(Bd09ll);
     this.setState({
       ShowStationExtData: extData,
-      mapCenter: extData.metadata.location.gps,
+      mapCenter: Gcj02ll,
     });
+    const aMap = this.Map;
+    if (aMap !== null) {
+      // @ts-ignore
+      aMap.setZoom(18);
+    }
   };
 
   CloseStationDetail = () => {
@@ -100,7 +130,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
   };
 
   render() {
-    const { mapCenter } = this.state;
+    const { mapCenter, mapZoom } = this.state;
     // Filter Status
     const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
     // Detail Data
@@ -110,7 +140,6 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       'Scale',
       'ToolBar',
     ];
-    const zoom: number | null = 11;
     const events: { created: Function; click: Function } = {
       created: () => {},
       click: () => {
@@ -134,7 +163,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       total: stationsData.things.length,
     };
     return (
-      <Map plugins={plugins} center={mapCenter} zoom={zoom} events={events}>
+      <Map plugins={plugins} center={mapCenter} zoom={mapZoom} events={events} resizeEnable>
         {this.RenderMarker()}
 
         <SearchPlane placeholder={placeholder} returnPoi={this.returnPoi} {...this.props} />
@@ -151,6 +180,8 @@ class StationMap extends Component<StationMapProps, StationMapState> {
         />
 
         <EquipmentStatus pumpStatus={pumpStatus} />
+
+        <this.CustomMapComponent />
       </Map>
     );
   }

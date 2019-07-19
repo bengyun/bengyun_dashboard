@@ -63,9 +63,47 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
     let detailArea = null;
     if (stationExtData !== null) {
       detailArea = (
-        <>
+        <div className={styles.historyLevelArea}>
+          <Row type="flex" align="middle">
+            <Col
+              span={24}
+              style={{
+                border: '1px solid #EEEEEE',
+                textAlign: 'center',
+                height: '45px',
+                lineHeight: '45px',
+                background: 'white',
+              }}
+            >
+              {stationExtData.name}
+            </Col>
+          </Row>
           <HistoryLevel {...this.props} />
-        </>
+          <Row type="flex" align="middle">
+            <Col span={8}>最新液位：</Col>
+            <Col span={16}>{stationExtData.metadata.reporting.water_level.current} CM</Col>
+          </Row>
+          <Row type="flex" align="middle">
+            <Col span={8}>窨井深度：</Col>
+            <Col span={16}>{stationExtData.metadata.reporting.water_level.depth} CM</Col>
+          </Row>
+          <Row type="flex" align="middle">
+            <Col span={8}>电池电压：</Col>
+            <Col span={16}>{stationExtData.metadata.reporting.batteryVoltage} V</Col>
+          </Row>
+          <Row type="flex" align="middle">
+            <Col span={8}>设备型号：</Col>
+            <Col span={16}>{stationExtData.metadata.device}</Col>
+          </Row>
+          <Row type="flex" align="middle">
+            <Col span={8}>设备地址：</Col>
+            <Col span={16}>{stationExtData.metadata.location.address}</Col>
+          </Row>
+          <Row type="flex" align="middle">
+            <Col span={8}>更新时间：</Col>
+            <Col span={16}>{stationExtData.metadata.reporting.updateTime}</Col>
+          </Row>
+        </div>
       );
     } else {
       detailArea = (
@@ -120,7 +158,7 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
     let ComponentClassName = null;
     let Content = null;
     if (stationExtData !== null) {
-      ComponentClassName = styles.detailPlaneHistory;
+      ComponentClassName = styles.detailPlaneLarge;
       Content = this.RenderLargePlane();
     } else if (stDetailPlaneOpen === true) {
       ComponentClassName = styles.detailPlaneLarge;

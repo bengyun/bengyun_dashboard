@@ -188,10 +188,12 @@ const renderMarkerHover = (extData: any) => {
 // But can be made as function
 const CustomMarker = (stationData: IThing, showDetailOf: Function) => {
   const extData = { ...stationData, showDetailOf };
+  const Bd09ll = stationData.metadata.location.gps;
+  const Gcj02ll = Bd09llToGcj02ll(Bd09ll);
   return (
     <Marker
       key={stationData.key}
-      position={stationData.metadata.location.gps}
+      position={Gcj02ll}
       render={renderMarker}
       events={markerEvents}
       extData={extData}
@@ -199,6 +201,17 @@ const CustomMarker = (stationData: IThing, showDetailOf: Function) => {
       zIndex={zIndex}
     />
   );
+};
+
+const Bd09llToGcj02ll = (gps: { latitude: number; longitude: number }) => {
+  const PI = (3.14159265358979324 * 3000.0) / 180.0;
+  const x = gps.longitude - 0.0065;
+  const y = gps.latitude - 0.006;
+  const k = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * PI);
+  const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * PI);
+  const longitude = k * Math.cos(theta);
+  const latitude = k * Math.sin(theta);
+  return { latitude, longitude };
 };
 
 export default CustomMarker;
