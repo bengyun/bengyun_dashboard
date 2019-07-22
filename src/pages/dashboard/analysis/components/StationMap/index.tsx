@@ -34,7 +34,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     ShowStationExtData: null,
   };
 
-  Map = null;
+  aMap = null;
 
   constructor(props: any) {
     super(props);
@@ -44,7 +44,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     // props.__ele__;
     // props.__map__;
     // your code here
-    this.Map = props.__map__;
+    this.aMap = props.__map__;
     return null;
   };
 
@@ -66,7 +66,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       ShowStationExtData: extData,
       mapCenter: Gcj02ll,
     });
-    const aMap = this.Map;
+    const aMap = this.aMap;
     if (aMap !== null) {
       // @ts-ignore
       aMap.setZoom(18);
@@ -163,7 +163,15 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       total: stationsData.things.length,
     };
     return (
-      <Map plugins={plugins} center={mapCenter} zoom={mapZoom} events={events} resizeEnable>
+      <Map
+        plugins={plugins}
+        center={mapCenter}
+        zoom={mapZoom}
+        events={events}
+        resizeEnable
+        amapkey="4cb9cfa5d9351a3ff333011d9428e359"
+        mapStyle="amap://styles/63cf3afb9449d4e7784944699f472d6d"
+      >
         {this.RenderMarker()}
 
         <SearchPlane placeholder={placeholder} returnPoi={this.returnPoi} {...this.props} />

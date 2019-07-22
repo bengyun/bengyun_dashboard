@@ -11,7 +11,6 @@ import React, { useState } from 'react';
 import logo from '../assets/logo.svg';
 import Authorized from '@/utils/Authorized';
 import { formatMessage } from 'umi-plugin-react/locale';
-import { isAntDesignPro } from '@/utils/utils';
 import {
   BasicLayout as ProLayoutComponents,
   BasicLayoutProps as ProLayoutComponentsProps,
@@ -39,21 +38,6 @@ const menuDataRender = (menuList: MenuDataItem[]): MenuDataItem[] => {
     const localItem = { ...item, children: item.children ? menuDataRender(item.children) : [] };
     return Authorized.check(item.authority, localItem, null) as MenuDataItem;
   });
-};
-
-const footerRender: BasicLayoutProps['footerRender'] = (_, defaultDom) => {
-  return (
-    <>
-      <div
-        style={{
-          padding: '0px 24px 24px',
-          textAlign: 'center',
-        }}
-      >
-        PumpCloud Powered By AntDesignPro
-      </div>
-    </>
-  );
 };
 
 const BasicLayout: React.FC<BasicLayoutProps> = props => {
@@ -103,7 +87,7 @@ const BasicLayout: React.FC<BasicLayoutProps> = props => {
           ...routers,
         ];
       }}
-      footerRender={footerRender}
+      footerRender={false}
       menuDataRender={menuDataRender}
       formatMessage={formatMessage}
       rightContentRender={rightProps => <RightContent {...rightProps} />}

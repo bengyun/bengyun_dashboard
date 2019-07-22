@@ -109,6 +109,11 @@ const Model: ModelType = {
         endTime: dateTime({ date: endTimeUTC }),
       };
       const response = yield call(getChannels, params);
+      for (let idx: number = 0; idx < response.length; idx++) {
+        response[idx].time = dateTime({
+          date: new Date(new Date(response[idx].time).getTime() + TimeDiff),
+        });
+      }
       yield put({
         type: 'save',
         payload: {
