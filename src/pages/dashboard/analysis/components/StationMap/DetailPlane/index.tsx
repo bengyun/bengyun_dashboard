@@ -1,34 +1,40 @@
 import React, { Component } from 'react';
-import { Button, Icon, Row, Col } from 'antd';
+import { Button, Icon, Tooltip } from 'antd';
 import styles from './index.less';
-
-import HistoryLevel from './HistoryLevel';
-
-import AlarmFilter from './AlarmFilter';
-import OnlineFilter from './OnlineFilter';
-import EquipmentList from './EquipmentList';
+import ThingList from './ThingList';
 import { IStationDetailData, IStationsList, IThing } from '@/pages/dashboard/analysis/data';
+import DetailContainer from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/DetailContainer';
+import FunctionMenu from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/FunctionMenu';
+import ThingInformation from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/ThingInformation';
+import SearchPlane from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/SearchPlane';
 
 interface DetailPlaneProps {
-  stationExtData: IThing | null /* 选中设备 */;
+  SelectedThing?: IThing | null /* 选中设备 */;
   stationDetailData: IStationDetailData /* 设备详细 */;
   stationsData: IStationsList /* 设备列表 */;
-  ShowStationDetail: Function /* 设置选中设备 */;
+  onDetailButtonClick: Function /* 设置选中设备 */;
   FetchStationDetail: Function /* 获得选中设备历史 - 数据模型更新 */;
-  CloseStationDetail: Function /* 清空选中设备历史 - 数据模型更新 */;
+  onDetailPlaneClose?: Function /* 清空选中设备历史 - 数据模型更新 */;
   OnlineFilterCurState: object;
   OnlineFilterCallBack: Function;
   AlarmFilterCurState: object;
   AlarmFilterCallBack: Function;
+  returnPoi?: Function /* 搜索框返回搜索地址坐标 */;
 }
 
 interface DetailPlaneState {
   stDetailPlaneOpen: boolean;
+  stDetailPlaneShow: boolean;
+  stShowThingInformation: boolean;
+  stDetailPlaneState: 'FunctionMenu' | 'ThingList';
 }
 
 class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
-  state = {
+  state: DetailPlaneState = {
     stDetailPlaneOpen: false,
+    stDetailPlaneShow: true,
+    stShowThingInformation: false,
+    stDetailPlaneState: 'FunctionMenu',
   };
 
   constructor(props: DetailPlaneProps) {
@@ -37,135 +43,202 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
     super(props);
   }
 
-  RenderSmallPlane = () => {
-    const OpenPlaneF = () => {
+  componentWillMount() {}
+  componentDidMount() {}
+  componentWillReceiveProps(newProps: DetailPlaneProps) {
+    const { SelectedThing } = newProps;
+    if (SelectedThing === undefined || SelectedThing === null) {
+      this.setState({ stShowThingInformation: false });
+    } else {
       this.setState({
+        stShowThingInformation: true,
         stDetailPlaneOpen: true,
+        stDetailPlaneShow: true,
       });
-    };
+    }
+  }
+  shouldComponentUpdate(newProps: DetailPlaneProps, newState: DetailPlaneState) {
+    return true;
+  }
+  componentWillUpdate(nextProps: DetailPlaneProps, nextState: DetailPlaneState) {}
+  componentDidUpdate(prevProps: DetailPlaneProps, prevState: DetailPlaneState) {}
+  componentWillUnmount() {}
 
-    return (
-      <Button type="link" className={styles.openCloseButton} onClick={OpenPlaneF}>
-        <Icon type="down" />
-        <span>显示详细信息</span>
-      </Button>
-    );
+  CloseDetailPlane = () => {
+    const { onDetailPlaneClose = () => {} } = this.props;
+    this.setState({ stDetailPlaneOpen: false, stDetailPlaneState: 'FunctionMenu' });
+    onDetailPlaneClose();
   };
 
-  RenderLargePlane = () => {
-    const { stationExtData, CloseStationDetail } = this.props;
+  SwitchDetailPlaneContent = (task: 'FunctionMenu' | 'ThingList') => {
+    this.setState({ stDetailPlaneState: task });
+  };
 
-    const ClosePlaneF = () => {
-      this.setState({ stDetailPlaneOpen: false });
-      CloseStationDetail();
-    };
-
-    let detailArea = null;
-    if (stationExtData !== null) {
-      detailArea = (
-        <div className={styles.historyLevelArea}>
-          <Row type="flex" align="middle">
-            <Col
-              span={24}
-              style={{
-                border: '1px solid #EEEEEE',
-                textAlign: 'center',
-                height: '45px',
-                lineHeight: '45px',
-                background: 'white',
-              }}
-            >
-              {stationExtData.name}
-            </Col>
-          </Row>
-          <HistoryLevel {...this.props} />
-          <Row type="flex" align="middle">
-            <Col span={8}>最新液位：</Col>
-            <Col span={16}>{stationExtData.metadata.reporting.water_level.current} CM</Col>
-          </Row>
-          <Row type="flex" align="middle">
-            <Col span={8}>窨井深度：</Col>
-            <Col span={16}>{stationExtData.metadata.reporting.water_level.depth} CM</Col>
-          </Row>
-          <Row type="flex" align="middle">
-            <Col span={8}>电池电压：</Col>
-            <Col span={16}>{stationExtData.metadata.reporting.batteryVoltage} V</Col>
-          </Row>
-          <Row type="flex" align="middle">
-            <Col span={8}>设备型号：</Col>
-            <Col span={16}>{stationExtData.metadata.device}</Col>
-          </Row>
-          <Row type="flex" align="middle">
-            <Col span={8}>设备地址：</Col>
-            <Col span={16}>{stationExtData.metadata.location.address}</Col>
-          </Row>
-          <Row type="flex" align="middle">
-            <Col span={8}>更新时间：</Col>
-            <Col span={16}>{stationExtData.metadata.reporting.updateTime}</Col>
-          </Row>
-        </div>
-      );
+  ShowHideDetailPlane = () => {
+    const { stDetailPlaneShow } = this.state;
+    if (stDetailPlaneShow) {
+      this.setState({ stDetailPlaneShow: false });
     } else {
-      detailArea = (
-        <>
-          <Row>
-            <Col
-              span={12}
-              style={{
-                border: '1px solid #EEEEEE',
-                textAlign: 'center',
-                height: '45px',
-                lineHeight: '45px',
-                background: 'white',
-              }}
-            >
-              {AlarmFilter(this.props)}
-            </Col>
-            <Col
-              span={12}
-              style={{
-                border: '1px solid #EEEEEE',
-                textAlign: 'center',
-                height: '45px',
-                lineHeight: '45px',
-                background: 'white',
-              }}
-            >
-              {OnlineFilter(this.props)}
-            </Col>
-          </Row>
-          <EquipmentList {...this.props} />
-        </>
-      );
+      this.setState({ stDetailPlaneShow: true });
     }
-
-    return (
-      <>
-        <div className={styles.detailArea}>{detailArea}</div>
-
-        <Button type="link" className={styles.openCloseButton} onClick={ClosePlaneF}>
-          <Icon type="up" />
-          <span>隐藏详细信息</span>
-        </Button>
-      </>
-    );
   };
 
   render() {
-    const { stationExtData } = this.props;
-    const { stDetailPlaneOpen } = this.state;
+    const {
+      SelectedThing,
+      stationDetailData,
+      FetchStationDetail,
+      stationsData,
+      onDetailButtonClick,
+      returnPoi = () => {},
+    } = this.props;
+    const {
+      stDetailPlaneOpen,
+      stDetailPlaneShow,
+      stShowThingInformation,
+      stDetailPlaneState,
+    } = this.state;
     // 选择放大内容和缩小内容
     let ComponentClassName = null;
-    let Content = null;
-    if (stationExtData !== null) {
-      ComponentClassName = styles.detailPlaneLarge;
-      Content = this.RenderLargePlane();
-    } else if (stDetailPlaneOpen === true) {
-      ComponentClassName = styles.detailPlaneLarge;
-      Content = this.RenderLargePlane();
-    } else {
+    const Content = [];
+
+    if (!stDetailPlaneShow) {
+      /* 隐藏模式 */
+      ComponentClassName = styles.detailPlaneHide;
+      Content.push(
+        <div
+          key={'隐藏显示按钮'}
+          className={styles.showHideButton}
+          onClick={() => {
+            this.ShowHideDetailPlane();
+          }}
+        >
+          <Tooltip placement="right" title={stDetailPlaneShow ? '隐藏' : '显示'}>
+            <Icon type={stDetailPlaneShow ? 'double-left' : 'double-right'} />
+          </Tooltip>
+        </div>,
+      );
+    } else if (!stDetailPlaneOpen) {
+      /* 简要功能模式 */
       ComponentClassName = styles.detailPlaneSmall;
-      Content = this.RenderSmallPlane();
+      Content.push(
+        <SearchPlane
+          key={'搜索栏'}
+          placeholder={'输入位置定位地图'}
+          returnPoi={returnPoi}
+          FetchStationList={() => {}}
+        />,
+        <Button
+          key={'放大缩小按钮'}
+          type="link"
+          className={styles.openCloseButton}
+          onClick={() => {
+            this.setState({ stDetailPlaneOpen: true });
+          }}
+        >
+          <Icon type="down" />
+          <span>显示详细信息</span>
+        </Button>,
+      );
+    } else if (stShowThingInformation) {
+      /* 设备详细显示模式 */
+      ComponentClassName = styles.detailPlaneLarge;
+      Content.push(
+        <SearchPlane
+          key={'搜索栏'}
+          placeholder={'输入位置定位地图'}
+          returnPoi={returnPoi}
+          FetchStationList={() => {}}
+          style={{ margin: 10 }}
+        />,
+        <div
+          key={'隐藏显示按钮'}
+          className={styles.showHideButton}
+          onClick={() => {
+            this.ShowHideDetailPlane();
+          }}
+        >
+          <Tooltip placement="right" title={stDetailPlaneShow ? '隐藏' : '显示'}>
+            <Icon type={stDetailPlaneShow ? 'double-left' : 'double-right'} />
+          </Tooltip>
+        </div>,
+        <Button
+          key={'放大缩小按钮'}
+          type="link"
+          className={styles.openCloseButton}
+          onClick={() => {
+            this.CloseDetailPlane();
+          }}
+        >
+          <Icon type="up" />
+          <span>隐藏详细信息</span>
+        </Button>,
+        <DetailContainer key={'内容区'}>
+          <ThingInformation
+            SelectedThing={SelectedThing}
+            stationDetailData={stationDetailData}
+            FetchStationDetail={FetchStationDetail}
+          />
+        </DetailContainer>,
+      );
+    } else {
+      /* 多功能模式 */
+      ComponentClassName = styles.detailPlaneLarge;
+      Content.push(
+        <SearchPlane
+          key={'搜索栏'}
+          placeholder={'输入位置定位地图'}
+          returnPoi={returnPoi}
+          FetchStationList={() => {}}
+          style={{ margin: 10 }}
+        />,
+        <div
+          key={'隐藏显示按钮'}
+          className={styles.showHideButton}
+          onClick={() => {
+            this.ShowHideDetailPlane();
+          }}
+        >
+          <Tooltip placement="right" title={stDetailPlaneShow ? '隐藏' : '显示'}>
+            <Icon type={stDetailPlaneShow ? 'double-left' : 'double-right'} />
+          </Tooltip>
+        </div>,
+        <Button
+          key={'放大缩小按钮'}
+          type="link"
+          className={styles.openCloseButton}
+          onClick={() => {
+            this.CloseDetailPlane();
+          }}
+        >
+          <Icon type="up" />
+          <span>隐藏详细信息</span>
+        </Button>,
+      );
+      switch (stDetailPlaneState) {
+        case 'ThingList':
+          Content.push(
+            <DetailContainer key={'内容区'}>
+              <ThingList
+                stationsData={stationsData}
+                onDetailButtonClick={onDetailButtonClick}
+                onReturnClick={this.SwitchDetailPlaneContent}
+              />
+            </DetailContainer>,
+          );
+          break;
+        case 'FunctionMenu':
+        default:
+          Content.push(
+            <DetailContainer key={'内容区'}>
+              <FunctionMenu
+                stationsData={stationsData}
+                onMenuClick={this.SwitchDetailPlaneContent}
+              />
+            </DetailContainer>,
+          );
+          break;
+      }
     }
     return <div className={ComponentClassName}>{Content}</div>;
   }

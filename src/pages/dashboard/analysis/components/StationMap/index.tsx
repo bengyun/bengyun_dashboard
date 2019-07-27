@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import { Map } from 'react-amap';
-
 import DetailPlane from './DetailPlane';
 import CustomMarker from './customMarker';
-import SearchPlane from './searchPlane';
-import EquipmentStatus from './EquipmentStatus';
 import { IStationDetailData, IStationsList, IThing } from '@/pages/dashboard/analysis/data';
 
 interface StationMapProps {
@@ -21,17 +18,18 @@ interface StationMapState {
   mapZoom: number | null;
   OnlineFilterCurState: object;
   AlarmFilterCurState: object;
-  ShowStationExtData: IThing | null;
+
+  SelectedThing: IThing | null;
 }
 
 class StationMap extends Component<StationMapProps, StationMapState> {
   state = {
-    mapCenter: { longitude: 121.54, latitude: 29.85 },
-    mapZoom: 11,
+    mapCenter: { longitude: 121.56, latitude: 30.01 },
+    mapZoom: 14,
     OnlineFilterCurState: { Online: true, Offline: true },
     AlarmFilterCurState: { Normal: true, Alarm: true },
 
-    ShowStationExtData: null,
+    SelectedThing: null,
   };
 
   aMap = null;
@@ -59,11 +57,11 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     return { latitude, longitude };
   };
 
-  ShowStationDetail = (extData: IThing) => {
+  SetSelectedThing = (extData: IThing) => {
     const Bd09ll = extData.metadata.location.gps;
     const Gcj02ll = this.Bd09llToGcj02ll(Bd09ll);
     this.setState({
-      ShowStationExtData: extData,
+      SelectedThing: extData,
       mapCenter: Gcj02ll,
     });
     const aMap = this.aMap;
@@ -72,10 +70,9 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       aMap.setZoom(18);
     }
   };
-
-  CloseStationDetail = () => {
+  ResetSelectedThing = () => {
     this.setState({
-      ShowStationExtData: null,
+      SelectedThing: null,
     });
   };
 
@@ -124,7 +121,9 @@ class StationMap extends Component<StationMapProps, StationMapState> {
 
       res.push(CustomMarker(stationData, Online, this.ShowStationDetail));
       */
-      /* 暂时对应 */ res.push(CustomMarker(stationData, this.ShowStationDetail));
+      /* 暂时对应 */ res.push(
+        CustomMarker({ stationData: stationData, onDetailButtonClick: this.SetSelectedThing }),
+      );
     }
     return res;
   };
@@ -134,7 +133,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     // Filter Status
     const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
     // Detail Data
-    const { ShowStationExtData } = this.state;
+    const { SelectedThing } = this.state;
     /* Map Properties */
     const plugins: ('MapType' | 'OverView' | 'Scale' | 'ToolBar' | 'ControlBar')[] = [
       'Scale',
@@ -143,25 +142,10 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     const events: { created: Function; click: Function } = {
       created: () => {},
       click: () => {
-        this.CloseStationDetail();
+        this.ResetSelectedThing();
       },
     };
-    /* Map Properties */
-    const placeholder: string = '输入位置定位地图';
-    /* Equipment State */
-    const { stationsData } = this.props;
-    let workingEquipment: number = 0;
-    for (let idx: number = 0; idx < stationsData.things.length; idx++) {
-      if (
-        stationsData.things[idx].metadata.reporting &&
-        stationsData.things[idx].metadata.reporting.updateTime
-      )
-        workingEquipment++;
-    }
-    const pumpStatus: { working: number; total: number } | undefined = {
-      working: workingEquipment,
-      total: stationsData.things.length,
-    };
+
     return (
       <Map
         plugins={plugins}
@@ -174,20 +158,17 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       >
         {this.RenderMarker()}
 
-        <SearchPlane placeholder={placeholder} returnPoi={this.returnPoi} {...this.props} />
-
         <DetailPlane
-          stationExtData={ShowStationExtData}
-          CloseStationDetail={this.CloseStationDetail}
-          ShowStationDetail={this.ShowStationDetail}
+          SelectedThing={SelectedThing}
+          onDetailPlaneClose={this.ResetSelectedThing}
+          onDetailButtonClick={this.SetSelectedThing}
           OnlineFilterCurState={OnlineFilterCurState}
           OnlineFilterCallBack={this.OnlineFilterCallBack}
           AlarmFilterCurState={AlarmFilterCurState}
           AlarmFilterCallBack={this.AlarmFilterCallBack}
+          returnPoi={this.returnPoi}
           {...this.props}
         />
-
-        <EquipmentStatus pumpStatus={pumpStatus} />
 
         <this.CustomMapComponent />
       </Map>

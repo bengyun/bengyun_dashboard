@@ -1,4 +1,4 @@
-import { getThings, getChannels } from '@/services/api';
+import { getThings, getNewestData, getChannels } from '@/services/api';
 import { IAnalysisData, IStationsList } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
@@ -41,55 +41,40 @@ const Model: ModelType = {
 
   effects: {
     *fetchStationsData({ payload }, { call, put }) {
-      const LocalTimeNow = new Date();
-      const UTCFullYear = LocalTimeNow.getUTCFullYear();
-      const UTCMonth = LocalTimeNow.getUTCMonth();
-      const UTCDate = LocalTimeNow.getUTCDate();
-      const UTCHours = LocalTimeNow.getUTCHours();
-      const UTCMinutes = LocalTimeNow.getUTCMinutes();
-      const UTCSeconds = LocalTimeNow.getUTCSeconds();
-      const UTCTimeNow = new Date(UTCFullYear, UTCMonth, UTCDate, UTCHours, UTCMinutes, UTCSeconds);
-      const UTCTimeFourHourAgo = new Date(
-        UTCFullYear,
-        UTCMonth,
-        UTCDate,
-        UTCHours - 4,
-        UTCMinutes,
-        UTCSeconds,
-      ); /* 已经验证 UTCHours - 24 可以获得前一天时间 */
-      const thingList: IStationsList = yield call(getThings, payload);
-      let currentLevel: {
-        name: 'water_level' | 'battery_voltage' | undefined;
-        value: string;
-        time: string;
-      }[] = [];
-      /* ↓↓这里来不及对应一次获得所有设备最新数据的接口，暂时做成每个设备调用一次接口↓↓ */
+      const thingList: IStationsList = yield call(getThings, payload); /* 获得设备信息 */
+      const payloadForNewestData: { things: string[] } = { things: [] };
+      for (let idx: number = 0; idx < thingList.things.length; idx++) {
+        payloadForNewestData.things.push(thingList.things[idx].id); /* 设备列表 thing_id */
+      }
+      const newestData: {
+        thing_id: string;
+        water_level: string;
+        water_level_time: string;
+        battery_voltage: string;
+        battery_voltage_time: string;
+      }[] = yield call(getNewestData, payloadForNewestData); /* 获得设备最新液位和电压 */
       const TimeDiff =
         new Date(dateTime()).getTime() -
         new Date(dateTime({ local: false })).getTime(); /* 获得当前时区与UTC时区时间差 */
       for (let idx: number = 0; idx < thingList.things.length; idx++) {
-        if (thingList.things[idx].metadata.type === 'manhole') {
-          currentLevel = yield call(getChannels, {
-            publisher: thingList.things[idx].id,
-            startTime: dateTime({ date: UTCTimeFourHourAgo }),
-            endTime: dateTime({ date: UTCTimeNow }),
-          });
-          if (currentLevel.length >= 2) {
-            thingList.things[idx].metadata.reporting.water_level.current = parseFloat(
-              currentLevel[currentLevel.length - 1].value,
-            );
-            thingList.things[idx].metadata.reporting.batteryVoltage = parseFloat(
-              currentLevel[currentLevel.length - 2].value,
-            );
-            const UpdateTimeUTC = new Date(currentLevel[currentLevel.length - 1].time);
-            const UpdateTimeLocal = new Date(UpdateTimeUTC.getTime() + TimeDiff); /* 时区转换 */
-            thingList.things[idx].metadata.reporting.updateTime = dateTime({
-              date: UpdateTimeLocal,
-            });
-          }
-        }
+        if (
+          thingList.things[idx] === undefined ||
+          thingList.things[idx].metadata === undefined ||
+          thingList.things[idx].metadata.reporting === undefined
+        )
+          continue; /* 排除奇葩设备 */
+        thingList.things[idx].metadata.reporting.water_level.current = parseFloat(
+          newestData[idx].water_level,
+        ); /* 插入最新水位 */
+        thingList.things[idx].metadata.reporting.batteryVoltage = parseFloat(
+          newestData[idx].battery_voltage,
+        ); /* 插入最新电压 */
+        thingList.things[idx].metadata.reporting.updateTime = dateTime({
+          date: new Date(
+            new Date(newestData[idx].water_level_time).getTime() + TimeDiff,
+          ) /* 插入水位更新时间 */,
+        });
       }
-      /* ↑↑这里来不及对应一次获得所有设备最新数据的接口，暂时做成每个设备调用一次接口↑↑ */
       yield put({
         type: 'save',
         payload: {
@@ -101,15 +86,20 @@ const Model: ModelType = {
       const TimeDiff =
         new Date(dateTime()).getTime() -
         new Date(dateTime({ local: false })).getTime(); /* 获得当前时区与UTC时区时间差 */
-      const startTimeUTC = new Date(new Date(payload.timeRange.startTime).getTime() - TimeDiff);
-      const endTimeUTC = new Date(new Date(payload.timeRange.endTime).getTime() - TimeDiff);
+      const startTimeUTC = new Date(
+        new Date(payload.timeRange.startTime).getTime() - TimeDiff,
+      ); /* 获得起始时间对应的UTC时间 */
+      const endTimeUTC = new Date(
+        new Date(payload.timeRange.endTime).getTime() - TimeDiff,
+      ); /* 获得结束时间对应的UTC时间 */
       const params = {
-        publisher: payload.stationId,
-        startTime: dateTime({ date: startTimeUTC }),
-        endTime: dateTime({ date: endTimeUTC }),
+        publisher: payload.stationId /* 需要获取历史的设备 thing_id */,
+        startTime: dateTime({ date: startTimeUTC }) /* 起始时间 yyyy-MM-dd HH:mm:ss */,
+        endTime: dateTime({ date: endTimeUTC }) /* 结束时间 yyyy-MM-dd HH:mm:ss */,
       };
       const response = yield call(getChannels, params);
       for (let idx: number = 0; idx < response.length; idx++) {
+        /* 将返回的UTC时间转换为当地时间 */
         response[idx].time = dateTime({
           date: new Date(new Date(response[idx].time).getTime() + TimeDiff),
         });

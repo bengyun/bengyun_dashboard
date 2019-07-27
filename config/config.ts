@@ -128,6 +128,14 @@ export default {
       changeOrigin: true,
       //pathRewrite: { '^/bengyun': '' },
     },
+    '/api/newestData': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+    },
+    '/api/waterLevel': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+    },
   },
   ignoreMomentLocale: true,
   lessLoaderOptions: {
