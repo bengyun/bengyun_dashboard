@@ -1,6 +1,7 @@
 import React from 'react';
 import { Chart, Tooltip, Geom, Legend, Axis } from 'bizcharts';
 import DataSet from '@antv/data-set';
+// @ts-ignore
 import Slider from 'bizcharts-plugin-slider';
 import autoHeight from '../autoHeight';
 import styles from './index.less';
@@ -9,10 +10,9 @@ export interface ITimelineChartProps {
   data: Array<{
     x: number;
     y1: number;
-    y2: number;
   }>;
   title?: string;
-  titleMap: { y1: string; y2: string };
+  titleMap: { y1: string };
   padding?: [number, number, number, number];
   height?: number;
   style?: React.CSSProperties;
@@ -27,23 +27,15 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
       padding = [60, 20, 40, 40] as [number, number, number, number],
       titleMap = {
         y1: 'y1',
-        y2: 'y2',
       },
       borderWidth = 2,
       data: sourceData,
     } = this.props;
 
-    const data = Array.isArray(sourceData) ? sourceData : [{ x: 0, y1: 0, y2: 0 }];
+    const data =
+      Array.isArray(sourceData) && sourceData.length > 0 ? sourceData : [{ x: 0, y1: 0 }];
 
     data.sort((a, b) => a.x - b.x);
-
-    let max;
-    if (data[0] && data[0].y1 && data[0].y2) {
-      max = Math.max(
-        [...data].sort((a, b) => b.y1 - a.y1)[0].y1,
-        [...data].sort((a, b) => b.y2 - a.y2)[0].y2,
-      );
-    }
 
     const ds = new DataSet({
       state: {
@@ -63,33 +55,23 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
       })
       .transform({
         type: 'map',
-        callback(row: { y1: string; y2: string }) {
+        callback(row: { y1: string }) {
           const newRow = { ...row };
           newRow[titleMap.y1] = row.y1;
-          newRow[titleMap.y2] = row.y2;
           return newRow;
         },
       })
       .transform({
         type: 'fold',
-        fields: [titleMap.y1, titleMap.y2], // 展开字段集
+        fields: [titleMap.y1], // 展开字段集
         key: 'key', // key字段
         value: 'value', // value字段
       });
 
     const timeScale = {
-      type: 'time',
-      tickInterval: 60 * 60 * 1000,
-      mask: 'HH:mm',
-      range: [0, 1],
-    };
-
-    const cols = {
-      x: timeScale,
-      value: {
-        max,
-        min: 0,
-      },
+      type: 'timeCat',
+      nice: true,
+      mask: 'MM-DD HH:mm',
     };
 
     const SliderGen = () => (
@@ -104,7 +86,7 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
         start={ds.state.start}
         end={ds.state.end}
         backgroundChart={{ type: 'line' }}
-        onChange={({ startValue, endValue }: { startValue: string; endValue: string }) => {
+        onChange={({ startValue, endValue }: { startValue: number; endValue: number }) => {
           ds.setState('start', startValue);
           ds.setState('end', endValue);
         }}
@@ -115,7 +97,7 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
       <div className={styles.timelineChart} style={{ height: height + 30 }}>
         <div>
           {title && <h4>{title}</h4>}
-          <Chart height={height} padding={padding} data={dv} scale={cols} forceFit>
+          <Chart height={height} padding={padding} data={dv} scale={{ x: timeScale }} forceFit>
             <Axis name="x" />
             <Tooltip />
             <Legend name="key" position="top" />

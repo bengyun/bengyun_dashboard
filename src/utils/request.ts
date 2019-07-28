@@ -34,13 +34,20 @@ const codeMessage = {
  */
 const errorHandler = (error: ResponseError) => {
   const { response = {} as Response } = error;
-  const errortext = codeMessage[response.status] || response.statusText;
+  const errorText = codeMessage[response.status] || response.statusText;
   const { status, url } = response;
 
-  notification.error({
-    message: `请求错误 ${status}: ${url}`,
-    description: errortext,
-  });
+  if (response.status === 403) {
+    // @ts-ignore
+    window.g_app._store.dispatch({
+      type: 'login/logout',
+    });
+  } else {
+    notification.error({
+      message: `请求错误 ${status}: ${url}`,
+      description: errorText,
+    });
+  }
 };
 
 /**

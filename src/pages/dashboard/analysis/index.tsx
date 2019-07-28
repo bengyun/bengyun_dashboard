@@ -3,7 +3,6 @@ import { connect } from 'dva';
 import PageLoading from './components/PageLoading';
 import { Dispatch } from 'redux';
 import { IAnalysisData } from './data.d';
-import { GridContent } from '@ant-design/pro-layout';
 import StationMap from './components/StationMap';
 
 interface DashboardAnalysisProps {
@@ -88,22 +87,18 @@ class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState>
     const { stationsData, stationDetailData } = dashboardAnalysis;
 
     return (
-      <GridContent>
-        <React.Fragment>
-          <Suspense fallback={<PageLoading />}>
-            <div style={{ width: '100%', height: '780px' }}>
-              <StationMap
-                loading={loadingStationsData}
-                stationsData={stationsData}
-                FetchStationList={this.FetchStationList}
-                stationDetailData={stationDetailData}
-                FetchStationDetail={this.FetchStationDetail}
-                ClearStationDetail={this.ClearStationDetail}
-              />
-            </div>
-          </Suspense>
-        </React.Fragment>
-      </GridContent>
+      <div style={{ width: '100%', height: '800px' }}>
+        <Suspense fallback={<PageLoading />}>
+          <StationMap
+            loading={loadingStationsData}
+            stationsData={stationsData}
+            FetchStationList={this.FetchStationList}
+            stationDetailData={stationDetailData}
+            FetchStationDetail={this.FetchStationDetail}
+            ClearStationDetail={this.ClearStationDetail}
+          />
+        </Suspense>
+      </div>
     );
   }
 }

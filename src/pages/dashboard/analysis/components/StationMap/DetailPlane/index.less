@@ -1,11 +1,25 @@
 @import '~antd/lib/style/themes/default.less';
 
+.detailPlaneHide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  width: 0;
+  height: 100%;
+  background: #f7f7f7;
+  box-shadow: 3px 0 8px -4px gray;
+  -moz-transition: width 500ms;
+  -webkit-transition: width 500ms;
+  -o-transition: width 500ms;
+  transition: width 500ms;
+}
 .detailPlaneSmall {
   position: absolute;
   top: 10px;
   left: 10px;
   z-index: 1000;
-  width: 370px;
+  width: 400px;
   height: 70px;
   background: #f7f7f7;
   border-radius: 5px;
@@ -13,38 +27,22 @@
   -moz-transition: height 1s;
   -webkit-transition: height 1s;
   -o-transition: height 1s;
-  transition: height 0.5s;
+  transition: height 1s;
 }
 .detailPlaneLarge {
   position: absolute;
   top: 0;
   left: 0;
   z-index: 1000;
-  width: 390px;
+  width: 420px;
   height: 100%;
-  overflow: hidden;
   background: #f7f7f7;
-  -moz-transition: height 1s;
-  -webkit-transition: height 1s;
-  -o-transition: height 1s;
-  transition: height 0.1s;
+  box-shadow: 3px 0 8px -4px gray;
+  -moz-transition: height 200ms;
+  -webkit-transition: height 200ms;
+  -o-transition: height 200ms;
+  transition: height 200ms;
 }
-.detailPlaneHistory {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  z-index: 1000;
-  width: 370px;
-  height: 600px;
-  background: #f7f7f7;
-  border-radius: 5px;
-  box-shadow: 0 0 5px gray;
-  -moz-transition: height 1s;
-  -webkit-transition: height 1s;
-  -o-transition: height 1s;
-  transition: height 0.5s;
-}
-
 .openCloseButton {
   position: absolute;
   bottom: 0;
@@ -56,34 +54,82 @@
 .openCloseButton:hover {
   color: black;
 }
-
-.detailArea {
+.showHideButton {
   position: absolute;
-  top: 50px;
-  right: 10px;
-  bottom: 30px;
-  left: 10px;
-  color: gray;
-}
-
-.historyLevelArea {
-  background: white;
-  border-radius: 5px;
-  box-shadow: 0 0 5px gray;
-}
-.historyLevel {
-  border: 1px solid #bcbcbc;
-}
-
-.equipmentList {
-  position: absolute;
-  top: 55px;
-  bottom: 0;
-  width: 100%;
-  overflow-y: auto;
-  background: white;
-  border: 1px solid #eee;
-}
-.equipmentItem {
+  top: 10px;
+  right: -20px;
+  width: 20px;
+  height: 40px;
+  line-height: 40px;
+  background-color: #eee;
+  border: 1px solid #ddd;
   cursor: pointer;
 }
+
+/* ↓↓---start--- Search Plane Style */
+
+.searchPlane {
+  width: 400px;
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 5px;
+}
+.searchPlaneLeft {
+  width: 34px;
+  text-align: center;
+}
+.searchPlaneRight {
+  width: 364px;
+}
+
+/* ↑↑---end--- Search Plane Style */
+
+.detailPlaneContainer {
+  position: absolute;
+  top: 50px;
+  bottom: 30px;
+  width: 100%;
+}
+
+/* ↓↓---start--- Function Menu Style */
+
+.FunctionMenuBlock {
+  background-color: white;
+  border-top: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+}
+.FunctionMenuRow {
+  height: 60px;
+  font-size: 18px;
+  line-height: 60px;
+}
+.FunctionMenuClickRow {
+  height: 60px;
+  font-size: 18px;
+  line-height: 60px;
+  cursor: pointer;
+}
+.FunctionMenuClickRow:hover {
+  background-color: #f7f7f7;
+}
+
+/* ↑↑---end--- Function Menu Style */
+
+/* ↓↓---start--- Button To Return Function Menu */
+
+.ReturnToMenu {
+  width: 100%;
+  height: 30px;
+  padding-right: 20px;
+  font-size: 15px;
+  line-height: 30px;
+  text-align: right;
+  background: white;
+  border: 1px solid #eee;
+  cursor: pointer;
+}
+.ReturnToMenu:hover {
+  background-color: #f7f7f7;
+}
+
+/* ↑↑---end--- Button To Return Function Menu */

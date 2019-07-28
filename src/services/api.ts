@@ -27,13 +27,20 @@ export async function getThings() {
   }
 }
 
+export async function getNewestData(data: { things: string[] }) {
+  return request('/api/newestData', {
+    method: 'POST',
+    data,
+  });
+}
+
 export async function getChannels(payload: {
   publisher: string;
   startTime: string | undefined;
   endTime: string | undefined;
 }) {
   const { publisher, startTime, endTime } = payload;
-  let url: string = '/api/messages/' + publisher;
+  let url: string = '/api/waterLevel/' + publisher;
   if (startTime !== undefined) url = url + '/' + startTime;
   if (endTime !== undefined) url = url + '/' + endTime;
   return request(url);

@@ -10,10 +10,10 @@ export interface IMetaData {
     };
   };
   reporting: {
-    updateTime: string | undefined;
-    batteryVoltage: number | undefined;
+    updateTime: string;
+    batteryVoltage: number;
     water_level: {
-      current: number | undefined;
+      current: number;
       critical: number;
       depth: number;
       overflow: number;
@@ -38,9 +38,8 @@ export interface IStationsList {
 
 export interface IStationDetailData {
   historyLevel: {
-    name: 'water_level' | 'battery_voltage' | undefined;
     time: string;
-    value: string;
+    mean: string;
   }[];
 }
 

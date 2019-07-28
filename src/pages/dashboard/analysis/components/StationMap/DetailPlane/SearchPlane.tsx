@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, CSSProperties } from 'react';
 import { Select, Icon, Cascader } from 'antd';
 import styles from './index.less';
 
@@ -8,6 +8,7 @@ interface SearchPlaneProps {
   placeholder: string;
   returnPoi: Function;
   FetchStationList: Function;
+  style?: CSSProperties;
 }
 
 interface SearchPlaneState {
@@ -140,6 +141,7 @@ class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
 
   render() {
     const { stType } = this.state;
+    const { style } = this.props;
 
     const changeType = () => {
       this.setState({ stType: !stType });
@@ -156,7 +158,7 @@ class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
     }
 
     return (
-      <div className={styles.searchPlane}>
+      <div className={styles.searchPlane} style={style}>
         <Icon type={iconType} className={styles.searchPlaneLeft} onClick={changeType} />
         {rightContent}
       </div>
