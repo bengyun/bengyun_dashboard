@@ -19,7 +19,7 @@ export async function accountLogin(data: any) {
 export async function getThings() {
   const token = getToken();
   if (token !== null) {
-    return request('/things', {
+    return request('/things?offset=0&limit=99', {
       headers: {
         Authorization: token,
       },
