@@ -41,6 +41,10 @@ export interface IStationDetailData {
     time: string;
     mean: string;
   }[];
+  histogram: {
+    le: string;
+    value: number;
+  }[];
 }
 
 export interface IAnalysisData {

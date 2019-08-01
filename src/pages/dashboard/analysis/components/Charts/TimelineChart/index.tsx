@@ -10,9 +10,10 @@ export interface ITimelineChartProps {
   data: Array<{
     x: number;
     y1: number;
+    max: number;
   }>;
-  title?: string;
-  titleMap: { y1: string };
+  title?: React.ReactNode;
+  titleMap: { y1: string; max: string };
   padding?: [number, number, number, number];
   height?: number;
   style?: React.CSSProperties;
@@ -27,13 +28,14 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
       padding = [60, 20, 40, 40] as [number, number, number, number],
       titleMap = {
         y1: 'y1',
+        max: 'max',
       },
       borderWidth = 2,
       data: sourceData,
     } = this.props;
 
     const data =
-      Array.isArray(sourceData) && sourceData.length > 0 ? sourceData : [{ x: 0, y1: 0 }];
+      Array.isArray(sourceData) && sourceData.length > 0 ? sourceData : [{ x: 0, y1: 0, max: 0 }];
 
     data.sort((a, b) => a.x - b.x);
 
@@ -55,15 +57,16 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
       })
       .transform({
         type: 'map',
-        callback(row: { y1: string }) {
+        callback(row: { y1: string; max: string }) {
           const newRow = { ...row };
           newRow[titleMap.y1] = row.y1;
+          newRow[titleMap.max] = row.max;
           return newRow;
         },
       })
       .transform({
         type: 'fold',
-        fields: [titleMap.y1], // 展开字段集
+        fields: [titleMap.y1, titleMap.max], // 展开字段集
         key: 'key', // key字段
         value: 'value', // value字段
       });
@@ -96,12 +99,17 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
     return (
       <div className={styles.timelineChart} style={{ height: height + 30 }}>
         <div>
-          {title && <h4>{title}</h4>}
+          {title}
           <Chart height={height} padding={padding} data={dv} scale={{ x: timeScale }} forceFit>
             <Axis name="x" />
             <Tooltip />
             <Legend name="key" position="top" />
-            <Geom type="line" position="x*value" size={borderWidth} color="key" />
+            <Geom
+              type="line"
+              position="x*value"
+              size={borderWidth}
+              color={['key', ['blue', 'red']]}
+            />
           </Chart>
           <div style={{ marginRight: -20 }}>
             <SliderGen />

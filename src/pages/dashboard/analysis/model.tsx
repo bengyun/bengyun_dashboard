@@ -1,4 +1,4 @@
-import { getThings, getNewestData, getChannels } from '@/services/api';
+import { getThings, getNewestData, getChannels, getHistogram } from '@/services/api';
 import { IAnalysisData, IStationsList } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
@@ -36,6 +36,7 @@ const Model: ModelType = {
     },
     stationDetailData: {
       historyLevel: [],
+      histogram: [],
     },
   },
 
@@ -64,10 +65,10 @@ const Model: ModelType = {
         )
           continue; /* 排除奇葩设备 */
         thingList.things[idx].metadata.reporting.water_level.current = parseFloat(
-          newestData[idx].water_level,
+          parseFloat(newestData[idx].water_level).toFixed(1),
         ); /* 插入最新水位 */
         thingList.things[idx].metadata.reporting.batteryVoltage = parseFloat(
-          newestData[idx].battery_voltage,
+          parseFloat(newestData[idx].battery_voltage).toFixed(1),
         ); /* 插入最新电压 */
         thingList.things[idx].metadata.reporting.updateTime = dateTime({
           date: new Date(
@@ -97,17 +98,25 @@ const Model: ModelType = {
         startTime: dateTime({ date: startTimeUTC }) /* 起始时间 yyyy-MM-dd HH:mm:ss */,
         endTime: dateTime({ date: endTimeUTC }) /* 结束时间 yyyy-MM-dd HH:mm:ss */,
       };
-      const response = yield call(getChannels, params);
-      for (let idx: number = 0; idx < response.length; idx++) {
+      const historyLevel = yield call(getChannels, params);
+      for (let idx: number = 0; idx < historyLevel.length; idx++) {
         /* 将返回的UTC时间转换为当地时间 */
-        response[idx].time = dateTime({
-          date: new Date(new Date(response[idx].time).getTime() + TimeDiff),
+        historyLevel[idx].time = dateTime({
+          date: new Date(new Date(historyLevel[idx].time).getTime() + TimeDiff),
         });
+      }
+      const histogram = yield call(getHistogram, params);
+      let lastNum = 0;
+      for (let idx: number = 0; idx < histogram.length; idx++) {
+        if (histogram[idx].le === 0) continue;
+        histogram[idx].le = histogram[idx].le - 20 + '-' + histogram[idx].le;
+        histogram[idx].value = histogram[idx].value - lastNum;
+        lastNum = histogram[idx].value;
       }
       yield put({
         type: 'save',
         payload: {
-          stationDetailData: { historyLevel: response },
+          stationDetailData: { historyLevel, histogram },
         },
       });
     },
@@ -135,6 +144,7 @@ const Model: ModelType = {
         },
         stationDetailData: {
           historyLevel: [],
+          histogram: [],
         },
       };
     },
