@@ -1,18 +1,12 @@
 import React from 'react';
-import { Popover, Card, Button } from 'antd';
+import { Popover, Card } from 'antd';
 import { Row, Col, Alert } from 'antd';
 import { Marker } from 'react-amap';
 import styles from './index.less';
 import { IThing } from '@/pages/dashboard/analysis/data';
 
 // render map markers while cursor hover
-const HoverContent = ({
-  stationData,
-  onDetailButtonClick,
-}: {
-  stationData: IThing;
-  onDetailButtonClick: Function;
-}) => {
+const HoverContent = ({ stationData }: { stationData: IThing }) => {
   const { metadata, name } = stationData;
   const { reporting, location, device } = metadata;
   const waterLevelCurrent = reporting.water_level.current;
@@ -62,18 +56,6 @@ const HoverContent = ({
         <Col span={8}>更新时间：</Col>
         <Col span={16}>{dateUpdateTime}</Col>
       </Row>
-      <Row type="flex" align="middle">
-        <Col span={24} style={{ textAlign: 'center' }}>
-          <Button
-            type="link"
-            onClick={() => {
-              onDetailButtonClick(stationData);
-            }}
-          >
-            详细信息
-          </Button>
-        </Col>
-      </Row>
     </Card>
   );
 };
@@ -91,14 +73,18 @@ const CustomMarker = ({
   const Bd09ll = stationData.metadata.location.gps;
   const Gcj02ll = Bd09llToGcj02ll(Bd09ll);
   return (
-    <Marker key={stationData.key} position={Gcj02ll} offset={[-15, -40]}>
+    <Marker
+      key={stationData.key}
+      position={Gcj02ll}
+      offset={[-15, -40]}
+      events={{
+        click: () => {
+          onDetailButtonClick(stationData);
+        },
+      }}
+    >
       <div className={styles.markStyle}>
-        <Popover
-          placement="rightTop"
-          content={
-            <HoverContent stationData={stationData} onDetailButtonClick={onDetailButtonClick} />
-          }
-        >
+        <Popover placement="rightTop" content={<HoverContent stationData={stationData} />}>
           {stationData.metadata.reporting.water_level.current}
         </Popover>
       </div>

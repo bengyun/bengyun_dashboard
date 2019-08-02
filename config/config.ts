@@ -136,6 +136,10 @@ export default {
       target: 'http://47.88.225.240/',
       changeOrigin: true,
     },
+    '/api/histogram': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+    },
   },
   ignoreMomentLocale: true,
   lessLoaderOptions: {

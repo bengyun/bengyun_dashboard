@@ -45,3 +45,16 @@ export async function getChannels(payload: {
   if (endTime !== undefined) url = url + '/' + endTime;
   return request(url);
 }
+
+export async function getHistogram(payload: {
+  publisher: string;
+  startTime: string | undefined;
+  endTime: string | undefined;
+}) {
+  const { publisher, startTime, endTime } = payload;
+  let url: string = '/api/histogram/' + publisher;
+  if (startTime !== undefined) url = url + '/' + startTime;
+  if (endTime !== undefined) url = url + '/' + endTime;
+  url = url + '/20';
+  return request(url);
+}

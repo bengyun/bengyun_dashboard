@@ -1,15 +1,16 @@
 import React, { Component } from 'react';
-import { Row, Col, DatePicker } from 'antd';
+import { Row, Col, DatePicker, Tabs } from 'antd';
 import moment from 'moment';
 import Charts from '../../Charts';
 import { IStationDetailData, IThing } from '@/pages/dashboard/analysis/data';
 
 const { RangePicker } = DatePicker;
-const { TimelineChart } = Charts;
+const { TabPane } = Tabs;
+const { TimelineChart, Bar } = Charts;
 const dateFormat = 'YYYY-MM-DD' || undefined;
 
 interface ThingInformationProps {
-  SelectedThing?: IThing | null;
+  SelectedThing: IThing;
   stationDetailData: IStationDetailData;
   FetchStationDetail: Function;
 }
@@ -86,13 +87,21 @@ class ThingInformation extends Component<ThingInformationProps, ThingInformation
   };
 
   render() {
-    const { SelectedThing = null, stationDetailData } = this.props;
+    const { SelectedThing, stationDetailData } = this.props;
     const { stTimeRange } = this.state;
-    const chartData: { x: number; y1: number }[] = [];
+    const chartData: { x: number; y1: number; max: number }[] = [];
+    const barData: { x: string; y: number }[] = [];
     for (let idx: number = 0; idx < stationDetailData.historyLevel.length; idx++) {
       chartData.push({
         x: new Date(stationDetailData.historyLevel[idx].time).getTime(),
         y1: parseFloat(stationDetailData.historyLevel[idx].mean),
+        max: SelectedThing.metadata.reporting.water_level.warning,
+      });
+    }
+    for (let idx: number = 0; idx < stationDetailData.histogram.length; idx++) {
+      barData.push({
+        x: stationDetailData.histogram[idx].le,
+        y: stationDetailData.histogram[idx].value,
       });
     }
     if (SelectedThing === null) return null;
@@ -123,42 +132,65 @@ class ThingInformation extends Component<ThingInformationProps, ThingInformation
             placeholder={['开始时间', '结束时间']}
           />
         </div>
-        <TimelineChart height={200} data={chartData} titleMap={{ y1: '液位变化趋势' }} />
-        <Row style={{ marginTop: '10px', paddingTop: '5px', paddingBottom: '5px' }}>
+        <Row style={{ borderBottom: '1px solid #EEE' }}>
+          <Col span={24}>
+            <Tabs defaultActiveKey="1" tabPosition="bottom">
+              <TabPane tab="液位趋势" key="1">
+                <TimelineChart
+                  height={240}
+                  data={chartData}
+                  titleMap={{ y1: '液位变化趋势', max: '液位上限' }}
+                  title
+                />
+              </TabPane>
+              <TabPane tab="液位分布" key="2">
+                <Bar height={250} data={barData} title />
+              </TabPane>
+            </Tabs>
+          </Col>
+        </Row>
+        <Row
+          style={{
+            marginTop: '10px',
+            borderBottom: '1px solid #EEE',
+            paddingTop: '5px',
+            paddingBottom: '5px',
+          }}
+        >
           <Col span={6} offset={2}>
             最新液位：
           </Col>
           <Col span={16}>{SelectedThing.metadata.reporting.water_level.current} CM</Col>
         </Row>
-        <Row style={{ borderTop: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
+        <Row style={{ borderBottom: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
+          <Col span={6} offset={2}>
+            更新时间：
+          </Col>
+          <Col span={16}>{SelectedThing.metadata.reporting.updateTime}</Col>
+        </Row>
+        <Row style={{ borderBottom: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
           <Col span={6} offset={2}>
             窨井深度：
           </Col>
           <Col span={16}>{SelectedThing.metadata.reporting.water_level.depth} CM</Col>
         </Row>
-        <Row style={{ borderTop: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
+        <Row style={{ borderBottom: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
           <Col span={6} offset={2}>
             电池电压：
           </Col>
           <Col span={16}>{SelectedThing.metadata.reporting.batteryVoltage} V</Col>
         </Row>
-        <Row style={{ borderTop: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
+        <Row style={{ borderBottom: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
           <Col span={6} offset={2}>
             设备型号：
           </Col>
           <Col span={16}>{SelectedThing.metadata.device}</Col>
         </Row>
-        <Row style={{ borderTop: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
+        <Row style={{ paddingTop: '5px', paddingBottom: '5px' }}>
           <Col span={6} offset={2}>
             设备地址：
           </Col>
           <Col span={16}>{SelectedThing.metadata.location.address}</Col>
-        </Row>
-        <Row style={{ borderTop: '1px solid #EEE', paddingTop: '5px', paddingBottom: '5px' }}>
-          <Col span={6} offset={2}>
-            更新时间：
-          </Col>
-          <Col span={16}>{SelectedThing.metadata.reporting.updateTime}</Col>
         </Row>
       </div>
     );
