@@ -58,3 +58,10 @@ export async function getHistogram(payload: {
   url = url + '/20';
   return request(url);
 }
+
+export async function pumpControl(data: {target: string; pumpData: { p1: number; p2: number; p3: number; }}) {
+  return request('/api/pumpControl/' + data.target, {
+    method: 'POST',
+    data: data.pumpData,
+  });
+}

@@ -1,4 +1,4 @@
-import { getThings, getNewestData, getChannels, getHistogram } from '@/services/api';
+import { getThings, getNewestData, getChannels, getHistogram, pumpControl } from '@/services/api';
 import { IAnalysisData, IStationsList } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
@@ -17,6 +17,8 @@ export interface ModelType {
     fetchStationsData: Effect;
     fetchStationDetailData: Effect;
     clearStationDetailData: Effect;
+
+    pumpControl: Effect;
   };
   reducers: {
     save: Reducer<IAnalysisData>;
@@ -43,38 +45,62 @@ const Model: ModelType = {
   effects: {
     *fetchStationsData({ payload }, { call, put }) {
       const thingList: IStationsList = yield call(getThings, payload); /* 获得设备信息 */
+      const allThings = thingList.things;
+      thingList.things = [];
       const payloadForNewestData: { things: string[] } = { things: [] };
-      for (let idx: number = 0; idx < thingList.things.length; idx++) {
-        payloadForNewestData.things.push(thingList.things[idx].id); /* 设备列表 thing_id */
+      for (let idx: number = 0; idx < allThings.length; idx++) {
+        if (
+          (allThings[idx].metadata.type === 'pump_station') || /* 自制泵站终端 */
+          (allThings[idx].metadata.type === 'manhole') /* 窨井 */
+        ) {
+          thingList.things.push(allThings[idx]); /* 重新加入有效的设备 */
+          payloadForNewestData.things.push(allThings[idx].id); /* 设备列表 thing_id */
+        }
       }
       const newestData: {
         thing_id: string;
-        water_level: string;
+        water_level: string; /* 液位 */
         water_level_time: string;
-        battery_voltage: string;
+        battery_voltage: string; /* 电池电压 */
         battery_voltage_time: string;
+        pump_status: string; /* 水泵状态 */
+        pump_status_time: string;
+        pump_current: string; /* 电流 */
+        current_time: string;
       }[] = yield call(getNewestData, payloadForNewestData); /* 获得设备最新液位和电压 */
       const TimeDiff =
         new Date(dateTime()).getTime() -
         new Date(dateTime({ local: false })).getTime(); /* 获得当前时区与UTC时区时间差 */
       for (let idx: number = 0; idx < thingList.things.length; idx++) {
-        if (
-          thingList.things[idx] === undefined ||
-          thingList.things[idx].metadata === undefined ||
-          thingList.things[idx].metadata.reporting === undefined
-        )
-          continue; /* 排除奇葩设备 */
-        thingList.things[idx].metadata.reporting.water_level.current = parseFloat(
-          parseFloat(newestData[idx].water_level).toFixed(1),
-        ); /* 插入最新水位 */
-        thingList.things[idx].metadata.reporting.batteryVoltage = parseFloat(
-          parseFloat(newestData[idx].battery_voltage).toFixed(1),
-        ); /* 插入最新电压 */
-        thingList.things[idx].metadata.reporting.updateTime = dateTime({
-          date: new Date(
-            new Date(newestData[idx].water_level_time).getTime() + TimeDiff,
-          ) /* 插入水位更新时间 */,
-        });
+        /* 窨井：：液位 & 电压 & 信息更新时间 */
+        if (thingList.things[idx].metadata.type === 'manhole') {
+          thingList.things[idx].metadata.reporting.water_level.current = parseFloat(
+            parseFloat(newestData[idx].water_level).toFixed(1),
+          ); /* 插入最新水位 */
+          thingList.things[idx].metadata.reporting.batteryVoltage = parseFloat(
+            parseFloat(newestData[idx].battery_voltage).toFixed(1),
+          ); /* 插入最新电压 */
+          thingList.things[idx].metadata.reporting.updateTime = dateTime({
+            date: new Date(
+              new Date(newestData[idx].water_level_time).getTime() + TimeDiff,
+            ) /* 插入水位更新时间 */,
+          });
+        }
+        /* 泵站：：液位 & 电流 & 水泵状态 & 信息更新时间 */
+        if (thingList.things[idx].metadata.type === 'pump_station') {
+          thingList.things[idx].metadata.reporting.water_level.current = parseFloat(
+            parseFloat(newestData[idx].water_level).toFixed(1),
+          ); /* 插入最新水位 */
+          thingList.things[idx].metadata.reporting.pump_current = parseFloat(
+            parseFloat(newestData[idx].pump_current).toFixed(1),
+          ); /* 插入最新电流 */
+          thingList.things[idx].metadata.reporting.pump_status = parseInt(newestData[idx].pump_status, 10); /* 插入水泵状态 */
+          thingList.things[idx].metadata.reporting.updateTime = dateTime({
+            date: new Date(
+              new Date(newestData[idx].water_level_time).getTime() + TimeDiff,
+            ) /* 插入水位更新时间 */,
+          });
+        }
       }
       yield put({
         type: 'save',
@@ -124,6 +150,9 @@ const Model: ModelType = {
       yield put({
         type: 'clear',
       });
+    },
+    *pumpControl({ payload }, { call }) {
+      yield call(pumpControl, payload);
     },
   },
 

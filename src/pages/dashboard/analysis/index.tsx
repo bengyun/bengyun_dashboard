@@ -2,101 +2,66 @@ import React, { Component, Suspense } from 'react';
 import { connect } from 'dva';
 import PageLoading from './components/PageLoading';
 import { Dispatch } from 'redux';
-import { IAnalysisData } from './data.d';
 import StationMap from './components/StationMap';
 
 interface DashboardAnalysisProps {
-  dashboardAnalysis: IAnalysisData;
   dispatch: Dispatch<any>;
-  loadingStationsData: boolean;
 }
 
-interface DashboardAnalysisState {
-  update: boolean;
-}
+interface DashboardAnalysisState {}
 
 @connect(
   ({
-    dashboardAnalysis,
     loading,
   }: {
-    dashboardAnalysis: any;
     loading: {
       effects: { [key: string]: boolean };
     };
   }) => ({
-    dashboardAnalysis,
-    loadingStationsData: loading.effects['dashboardAnalysis/fetchStationsData'],
-    loadingStationsDetailData: loading.effects['dashboardAnalysis/fetchStationDetailData'],
+    loadingStationsData: loading.effects['dashboardAnalysis/fetchStationsData'], /* 并没有卵用，只是留在这里提醒还能获得调用中的状态 */
   }),
 )
 class Analysis extends Component<DashboardAnalysisProps, DashboardAnalysisState> {
-  state: DashboardAnalysisState = {
-    update: false,
-  };
-  reqRef!: number;
-  componentDidMount() {
+  state: DashboardAnalysisState = {};
+  reqRef: number;
+  /* 在组件加载时，更新站点(Thing)信息，并设定定时更新 */
+  constructor(props: any) {
+    super(props);
     const { dispatch } = this.props;
-    this.reqRef = requestAnimationFrame(() => {
+    /* 更新站点(Thing)信息 */
+    dispatch({
+      type: 'dashboardAnalysis/fetchStationsData',
+    });
+    /* 设定10秒更新1次站点(Thing)信息 */
+    this.reqRef = window.setInterval(() => {
       dispatch({
         type: 'dashboardAnalysis/fetchStationsData',
       });
-    });
+    }, 20000);
   }
-
+  /* 通过画面帧调用，访问后台频率太快，改用计时器
+  Animate = () => {
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'dashboardAnalysis/fetchStationsData',
+    });
+    this.reqRef = requestAnimationFrame(this.animate);
+  };
+  通过画面帧调用，访问后台频率太快，改用计时器 */
+  /* 在组件卸载前，终止更新站点(Thing)信息的计时器，并清空模型中的数据 */
   componentWillUnmount() {
     const { dispatch } = this.props;
-    cancelAnimationFrame(this.reqRef);
+    window.clearInterval(this.reqRef);
     dispatch({
       type: 'dashboardAnalysis/clear',
     });
   }
-
-  // 获取站点列表
-  FetchStationList = (region: any) => {
-    const { dispatch } = this.props;
-
-    dispatch({
-      type: 'dashboardAnalysis/fetchStationsData',
-      payload: { region: JSON.stringify(region) },
-    });
-  };
-
-  // 获取某个站点的详细信息
-  FetchStationDetail = (data: any) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'dashboardAnalysis/fetchStationDetailData',
-      payload: data,
-    });
-  };
-  ClearStationDetail = () => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'dashboardAnalysis/clearStationDetailData',
-    });
-  };
-
+  /* 显示组件 */
   render() {
-    const {
-      dashboardAnalysis,
-
-      loadingStationsData,
-    } = this.props;
-
-    const { stationsData, stationDetailData } = dashboardAnalysis;
-
     return (
       <div style={{ width: '100%', height: '800px' }}>
         <Suspense fallback={<PageLoading />}>
-          <StationMap
-            loading={loadingStationsData}
-            stationsData={stationsData}
-            FetchStationList={this.FetchStationList}
-            stationDetailData={stationDetailData}
-            FetchStationDetail={this.FetchStationDetail}
-            ClearStationDetail={this.ClearStationDetail}
-          />
+          <StationMap />
         </Suspense>
       </div>
     );

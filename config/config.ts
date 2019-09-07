@@ -140,6 +140,11 @@ export default {
       target: 'http://47.88.225.240/',
       changeOrigin: true,
     },
+    '/api/pumpControl': {
+      target: 'http://47.88.225.240/',
+      changeOrigin: true,
+      //pathRewrite: { '^/api': '' },
+    },
   },
   ignoreMomentLocale: true,
   lessLoaderOptions: {

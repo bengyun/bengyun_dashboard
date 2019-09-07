@@ -1,25 +1,31 @@
 export interface IMetaData {
   device: string;
   name: string;
-  type: string;
+  type: string; /* ???Œ^ */
   location: {
-    address: string;
-    gps: {
+    address: string; /* ’nš¬ */
+    gps: {  /* GPS¿? */
       latitude: number;
       longitude: number;
     };
   };
   reporting: {
-    updateTime: string;
-    batteryVoltage: number;
-    water_level: {
-      current: number;
-      critical: number;
-      depth: number;
-      overflow: number;
-      warning: number;
+    updateTime: string; /* ”˜XV?? */
+    batteryVoltage: number; /* ?’r?? */
+    pump_current: number; /* …??—¬ */
+    pump_status: number; /* …?ó? */
+    water_level: { /* …ˆÊM‘§ */
+      current: number; /* “–‘O…ˆÊ */
+      critical: number; /* ?‹}…ˆÊ */
+      depth: number; /* [“x */
+      overflow: number; /* ?ˆì…ˆÊ */
+      warning: number; /* Œx?…ˆÊ */
     };
   };
+  pump_ctrl: { /* ?â‹“Æ—L“I…?T§M‘§ */
+    pump_number: number;
+    control_channel: string;
+  }
 }
 
 export interface IThing {

@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import { Row, Col, DatePicker, Tabs } from 'antd';
 import moment from 'moment';
 import Charts from '../../Charts';
-import { IStationDetailData, IThing } from '@/pages/dashboard/analysis/data';
+import { Dispatch } from 'redux';
+import { IAnalysisData, IThing } from '@/pages/dashboard/analysis/data';
+import { connect } from 'dva';
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
@@ -10,9 +12,9 @@ const { TimelineChart, Bar } = Charts;
 const dateFormat = 'YYYY-MM-DD' || undefined;
 
 interface ThingInformationProps {
-  SelectedThing: IThing;
-  stationDetailData: IStationDetailData;
-  FetchStationDetail: Function;
+  dashboardAnalysis?: IAnalysisData;
+  dispatch?: Dispatch<any>;
+  SelectedThing: IThing | null;
 }
 
 interface ThingInformationState {
@@ -20,21 +22,26 @@ interface ThingInformationState {
   stShowTimeValueRange: { startValue: string | undefined; endValue: string | undefined };
 }
 
+@connect(
+  ({
+     dashboardAnalysis,
+   }: {
+    dashboardAnalysis: IAnalysisData;
+  }) => ({
+    dashboardAnalysis,
+  }),
+)
 class ThingInformation extends Component<ThingInformationProps, ThingInformationState> {
   state: ThingInformationState = {
     stTimeRange: { startTime: undefined, endTime: undefined },
     stShowTimeValueRange: { startValue: undefined, endValue: undefined },
   };
-
+  /* 在加载组件的时候获取当天的液位趋势 */
   constructor(props: ThingInformationProps) {
     // when need to use props in constructor, use super(props)
     // when need not to use props in constructor, use super()
     super(props);
-  }
-
-  /* 在加载组件的时候获取当天的液位趋势 */
-  componentWillMount() {
-    const { SelectedThing, FetchStationDetail } = this.props;
+    const { SelectedThing } = this.props;
     const { stTimeRange } = this.state;
     let { startTime, endTime } = stTimeRange;
     if (startTime === undefined || endTime === undefined) {
@@ -48,46 +55,50 @@ class ThingInformation extends Component<ThingInformationProps, ThingInformation
       endTime = YYYY + '-' + MM + '-' + DD + ' ' + HH + ':' + mm + ':' + ss;
       startTime = YYYY + '-' + MM + '-' + DD + ' 00:00:00';
     }
-    this.setState({
-      stTimeRange: { startTime, endTime },
-    });
-    if (SelectedThing)
-      FetchStationDetail({
-        stationId: SelectedThing.id,
-        timeRange: { startTime, endTime },
-      });
+    this.state.stTimeRange = { startTime, endTime };
+    if (SelectedThing) this.FetchStationDetail([startTime, endTime]);
   }
-  componentDidMount() {}
-  componentWillUpdate() {}
   /* 在选中的设备改变时重新获得液位趋势 */
   componentDidUpdate(prevProps: ThingInformationProps, prevState: ThingInformationState) {
-    const { SelectedThing, FetchStationDetail } = this.props;
+    const { SelectedThing } = this.props;
     const { stTimeRange } = this.state;
     if (
-      SelectedThing &&
-      (!prevProps.SelectedThing || SelectedThing.id !== prevProps.SelectedThing.id)
+      SelectedThing && /* 选中的设备(Thing)存在 且 */
+      (!prevProps.SelectedThing || /* 选中的设备(Thing)从无到有 或 */
+        SelectedThing.id !== prevProps.SelectedThing.id) /* 选中的设备(Thing)改变 */
     ) {
-      FetchStationDetail({
-        stationId: SelectedThing.id,
-        timeRange: { startTime: stTimeRange.startTime, endTime: stTimeRange.endTime },
-      });
+      /* 触发模型更新数据，景改变thing_id，时间区间不改变 */
+      this.FetchStationDetail([stTimeRange.startTime, stTimeRange.endTime]);
     }
   }
+  /* 触发模型更新历史数据 */
+  FetchStationDetail = (dateString: (string | undefined)[]) => {
+    const { SelectedThing, dispatch } = this.props;
+    if ((SelectedThing) && (dispatch) && (dateString[0] !== undefined) && (dateString[1] !== undefined)) dispatch({
+      type: 'dashboardAnalysis/fetchStationDetailData',
+      payload: {
+        stationId: SelectedThing.id,
+        timeRange: { startTime: dateString[0], endTime: dateString[1] },
+      },
+    });
+  };
   /* 在组件的时间选择更新时重新获得液位趋势 */
   FetchData = (data: any, dateString: string[]) => {
-    const { SelectedThing, FetchStationDetail } = this.props;
     this.setState({
       stTimeRange: { startTime: dateString[0], endTime: dateString[1] },
     });
-    if (SelectedThing)
-      FetchStationDetail({
-        stationId: SelectedThing.id,
-        timeRange: { startTime: dateString[0], endTime: dateString[1] },
-      });
+    this.FetchStationDetail(dateString);
   };
 
   render() {
-    const { SelectedThing, stationDetailData } = this.props;
+    const {
+      SelectedThing,
+      dashboardAnalysis = {stationsData: undefined, stationDetailData: undefined },
+    } = this.props;
+    const {
+      stationDetailData,
+    } = dashboardAnalysis;
+    if (stationDetailData === undefined) return null;
     const { stTimeRange } = this.state;
     const chartData: { x: number; y1: number; max: number }[] = [];
     const barData: { x: string; y: number }[] = [];
@@ -95,7 +106,7 @@ class ThingInformation extends Component<ThingInformationProps, ThingInformation
       chartData.push({
         x: new Date(stationDetailData.historyLevel[idx].time).getTime(),
         y1: parseFloat(stationDetailData.historyLevel[idx].mean),
-        max: SelectedThing.metadata.reporting.water_level.warning,
+        max: SelectedThing ? SelectedThing.metadata.reporting.water_level.warning : 0,
       });
     }
     for (let idx: number = 0; idx < stationDetailData.histogram.length; idx++) {

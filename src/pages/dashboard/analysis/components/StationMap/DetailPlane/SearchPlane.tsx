@@ -7,7 +7,6 @@ const { Option } = Select;
 interface SearchPlaneProps {
   placeholder: string;
   returnPoi: Function;
-  FetchStationList: Function;
   style?: CSSProperties;
 }
 
@@ -21,10 +20,8 @@ interface SearchPlaneState {
 class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
   state = {
     stType: false,
-
     data: [],
     value: undefined,
-
     stDefaultRegion: [],
   };
   placeSearch: { search: Function } | null = null;
@@ -93,9 +90,6 @@ class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
     this.setState({
       stDefaultRegion: region,
     });
-
-    const { FetchStationList } = this.props;
-    FetchStationList(region);
   };
   RenderRegionSelect = () => {
     const { stDefaultRegion } = this.state;

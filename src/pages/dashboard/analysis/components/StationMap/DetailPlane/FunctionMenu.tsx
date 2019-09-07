@@ -1,15 +1,25 @@
 import React, { Component } from 'react';
 import { Row, Col, Icon } from 'antd';
 import styles from './index.less';
-import { IStationsList } from '@/pages/dashboard/analysis/data';
+import { IAnalysisData } from '@/pages/dashboard/analysis/data';
+import { connect } from 'dva';
 
 interface FunctionMenuProps {
-  stationsData: IStationsList /* 设备列表 */;
+  dashboardAnalysis?: IAnalysisData;
   onMenuClick?: Function /* 点击菜单事件 */;
 }
 
 interface FunctionMenuState {}
 
+@connect(
+  ({
+     dashboardAnalysis,
+   }: {
+    dashboardAnalysis: IAnalysisData;
+  }) => ({
+    dashboardAnalysis,
+  }),
+)
 class FunctionMenu extends Component<FunctionMenuProps, FunctionMenuState> {
   state: FunctionMenuState = {};
 
@@ -22,8 +32,11 @@ class FunctionMenu extends Component<FunctionMenuProps, FunctionMenuState> {
   render() {
     const {
       onMenuClick = () => {},
-      stationsData = { total: 0, offset: 0, limit: 0, things: [] },
+      dashboardAnalysis = {stationsData: undefined, stationDetailData: undefined },
     } = this.props;
+    const {
+      stationsData = { total: 0, offset: 0, limit: 0, things: [] },
+    } = dashboardAnalysis;
     /* Equipment State */
     let workingEquipment: number = 0;
     const timeLimit = new Date().getTime() - 24 * 60 * 60 * 1000;

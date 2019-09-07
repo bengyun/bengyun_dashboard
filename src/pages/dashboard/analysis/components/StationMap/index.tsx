@@ -2,15 +2,13 @@ import React, { Component } from 'react';
 import { Map } from 'react-amap';
 import DetailPlane from './DetailPlane';
 import CustomMarker from './customMarker';
-import { IStationDetailData, IStationsList, IThing } from '@/pages/dashboard/analysis/data';
+import { IAnalysisData, IThing } from '@/pages/dashboard/analysis/data';
+import { connect } from 'dva';
+import { Dispatch } from 'redux';
 
 interface StationMapProps {
-  loading: boolean;
-  stationsData: IStationsList;
-  FetchStationList: Function;
-  stationDetailData: IStationDetailData;
-  FetchStationDetail: Function;
-  ClearStationDetail: Function;
+  dashboardAnalysis?: IAnalysisData;
+  dispatch?: Dispatch<any>;
 }
 
 interface StationMapState {
@@ -18,26 +16,32 @@ interface StationMapState {
   mapZoom: number | null;
   OnlineFilterCurState: object;
   AlarmFilterCurState: object;
-
   SelectedThing: IThing | null;
 }
 
+@connect(
+  ({
+     dashboardAnalysis,
+   }: {
+    dashboardAnalysis: IAnalysisData;
+  }) => ({
+    dashboardAnalysis,
+  }),
+)
 class StationMap extends Component<StationMapProps, StationMapState> {
   state = {
-    mapCenter: { longitude: 121.56, latitude: 30.01 },
-    mapZoom: 14,
-    OnlineFilterCurState: { Online: true, Offline: true },
-    AlarmFilterCurState: { Normal: true, Alarm: true },
-
-    SelectedThing: null,
+    mapCenter: { longitude: 121.56, latitude: 30.01 }, /* 地图的中心，暂时是个固定值 */
+    mapZoom: 14, /* 地图的缩放比例，暂时是个固定值 */
+    OnlineFilterCurState: { Online: true, Offline: true }, /* 在线筛选条件 */
+    AlarmFilterCurState: { Normal: true, Alarm: true }, /* 警报筛选条件 */
+    SelectedThing: null, /* 选中的设备 */
   };
-
+  /* 保存高德地图原生对象 */
   aMap = null;
-
   constructor(props: any) {
     super(props);
   }
-
+  /* 获得高德地图原生对象 */
   CustomMapComponent = (props: any) => {
     // props.__ele__;
     // props.__map__;
@@ -45,7 +49,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     this.aMap = props.__map__;
     return null;
   };
-
+  /* 将百度地图坐标转换为高德地图坐标 */
   Bd09llToGcj02ll = (gps: { latitude: number; longitude: number }) => {
     const PI = (3.14159265358979324 * 3000.0) / 180.0;
     const x = gps.longitude - 0.0065;
@@ -56,7 +60,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     const latitude = k * Math.sin(theta);
     return { latitude, longitude };
   };
-
+  /* 设置选中的设备(Thing),并移动到地图中心，并将地图缩放设为18 */
   SetSelectedThing = (extData: IThing) => {
     const Bd09ll = extData.metadata.location.gps;
     const Gcj02ll = this.Bd09llToGcj02ll(Bd09ll);
@@ -70,82 +74,89 @@ class StationMap extends Component<StationMapProps, StationMapState> {
       aMap.setZoom(18);
     }
   };
+  /* 将选中设备设置为null */
   ResetSelectedThing = () => {
     this.setState({
       SelectedThing: null,
     });
   };
-
+  /* 根据参数的坐标定位地图中心 */
   returnPoi = (POI: any) => {
     this.setState({
       mapCenter: POI.location,
     });
   };
-
+  /* 设置在线筛选的条件状态 */
   OnlineFilterCallBack = (OnlineFilterCurState: any) => {
     this.setState({
       OnlineFilterCurState,
     });
   };
-
+  /* 设置警报筛选的条件状态 */
   AlarmFilterCallBack = (AlarmFilterCurState: any) => {
     this.setState({
       AlarmFilterCurState,
     });
   };
-
-  // initialize map markers according to props.stationsData
+  /* 控制水泵的函数 */
+  PumpControl = (data: any) => {
+    const { dispatch } = this.props;
+    if (dispatch) dispatch({
+      type: 'dashboardAnalysis/pumpControl',
+      payload: data,
+    });
+    if (dispatch) dispatch({
+      type: 'dashboardAnalysis/fetchStationsData',
+    });
+  };
+  /* 根据设备(Thing)信息生成地图标记列表 */
   RenderMarker = () => {
-    const { stationsData } = this.props;
-
-    if (stationsData === undefined || stationsData.total === undefined) return null;
+    const {
+      dashboardAnalysis = {stationsData: undefined, stationDetailData: undefined },
+    } = this.props;
+    const {
+      stationsData,
+    } = dashboardAnalysis;
+    /* 如果没有设备(Thing)信息则返回空数组 */
+    if (stationsData === undefined || stationsData.total === undefined) return [];
     const res = [];
+    /* 根据设备(Thing)信息创建地图标记集合 */
     for (let i = 0; i < stationsData.things.length; i += 1) {
-      const stationData = stationsData.things[i];
-      if (stationData.metadata.location === undefined) continue;
-      /*
-      const metadata = stationData.metadata;
-      const dataUpdateTimeStri = metadata.dataUpdateTime;
-      const dataUpdateTimeDate = new Date(dataUpdateTimeStri.replace(/-/g, '/')).getTime();
-      const fourHourBeforeDate = Date.now() - 1000 * 60 * 60 * 4;
-      const Online = dataUpdateTimeDate >= fourHourBeforeDate;
-      const Alarm = stationData.metadata.alarmLevel > 0;
-
-      //Filter
-      //OnlineFilter
-      if (OnlineFilterCurState.Online === false && Online === true) continue;
-      if (OnlineFilterCurState.Offline === false && Online === false) continue;
-      //AlarmFilter
-      if (AlarmFilterCurState.Normal === false && Alarm === false) continue;
-      if (AlarmFilterCurState.Alarm === false && Alarm === true) continue;
-
-      res.push(CustomMarker(stationData, Online, this.ShowStationDetail));
-      */
-      /* 暂时对应 */ res.push(
-        CustomMarker({ stationData: stationData, onDetailButtonClick: this.SetSelectedThing }),
-      );
+      const thing = stationsData.things[i];
+      if (
+        thing !== undefined &&
+        (
+          thing.metadata.type === 'manhole' ||
+          thing.metadata.type === 'pump_station'
+        )
+      ) {
+        res.push(
+          CustomMarker({ thing: thing, onDetailButtonClick: this.SetSelectedThing, pumpSwitch: this.PumpControl }),
+        );
+      }
     }
     return res;
   };
-
+  /* 显示组件 */
   render() {
+    /* 地图中心坐标和地图缩放等级 */
     const { mapCenter, mapZoom } = this.state;
-    // Filter Status
+    /* 筛选条件 */
     const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
-    // Detail Data
+    /* 选中的设备(Thing) */
     const { SelectedThing } = this.state;
     /* Map Properties */
     const plugins: ('MapType' | 'OverView' | 'Scale' | 'ToolBar' | 'ControlBar')[] = [
       'Scale',
       'ToolBar',
     ];
+    /* 当鼠标点击地图时，取消选中的设备(Thing) */
     const events: { created: Function; click: Function } = {
       created: () => {},
       click: () => {
         this.ResetSelectedThing();
       },
     };
-
     return (
       <Map
         plugins={plugins}
@@ -167,7 +178,6 @@ class StationMap extends Component<StationMapProps, StationMapState> {
           AlarmFilterCurState={AlarmFilterCurState}
           AlarmFilterCallBack={this.AlarmFilterCallBack}
           returnPoi={this.returnPoi}
-          {...this.props}
         />
 
         <this.CustomMapComponent />

@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
 import { List, Icon } from 'antd';
 import styles from './index.less';
-import { IStationsList, IThing } from '@/pages/dashboard/analysis/data';
+import { IAnalysisData, IStationsList, IThing } from '@/pages/dashboard/analysis/data';
+import { connect } from 'dva';
 
 interface ThingListProps {
-  stationsData: IStationsList /* 设备列表 */;
+  dashboardAnalysis?: IAnalysisData;
   onDetailButtonClick?: Function /* 设置选中设备 */;
   onReturnClick?: Function /* 返回主菜单 */;
 }
@@ -19,6 +20,15 @@ const ThingListStyle = {
   border: '1px solid #eee',
 };
 
+@connect(
+  ({
+     dashboardAnalysis,
+   }: {
+    dashboardAnalysis: IAnalysisData;
+  }) => ({
+    dashboardAnalysis,
+  }),
+)
 class ThingList extends Component<ThingListProps, ThingListState> {
   state: ThingListState = {};
 
@@ -27,15 +37,15 @@ class ThingList extends Component<ThingListProps, ThingListState> {
     // when need not to use props in constructor, use super()
     super(props);
   }
-
+  /* 当点击设备(Thing)列表的某一项时候，将其设为选中设备(Thing) */
   onItemClick = (station: IThing) => {
     const { onDetailButtonClick = () => {} } = this.props;
     onDetailButtonClick(station);
   };
-
+  /* 根据筛选条件筛选显示的设备(Thing) */
   filterListItem = (stationsData: IStationsList) => {
     const res = [];
-    for (let i = 0; i < stationsData.things.length; i += 1) {
+    for (let i = 0; i < stationsData.things.length; i++) {
       const stationData = stationsData.things[i];
       if (stationData.metadata.location === undefined) continue;
       /*
@@ -59,10 +69,18 @@ class ThingList extends Component<ThingListProps, ThingListState> {
     }
     return res;
   };
-
+  /* 显示组件 */
   render() {
-    const { stationsData, onReturnClick = () => {} } = this.props;
-    const stations = this.filterListItem(stationsData);
+    const {
+      dashboardAnalysis = {stationsData: undefined, stationDetailData: undefined },
+      onReturnClick = () => {},
+    } = this.props;
+    const {
+      stationsData,
+    } = dashboardAnalysis;
+    let stations: IThing[] = [];
+    /* 对设备(Thing)信息进行筛选 */
+    if (stationsData !== undefined) stations = this.filterListItem(stationsData);
     return (
       <>
         <div

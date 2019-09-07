@@ -2,19 +2,16 @@ import React, { Component } from 'react';
 import { Button, Icon, Tooltip } from 'antd';
 import styles from './index.less';
 import ThingList from './ThingList';
-import { IStationDetailData, IStationsList, IThing } from '@/pages/dashboard/analysis/data';
+import { IThing } from '@/pages/dashboard/analysis/data';
 import DetailContainer from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/DetailContainer';
 import FunctionMenu from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/FunctionMenu';
 import ThingInformation from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/ThingInformation';
 import SearchPlane from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/SearchPlane';
 
 interface DetailPlaneProps {
-  SelectedThing?: IThing | null /* 选中设备 */;
-  stationDetailData: IStationDetailData /* 设备详细 */;
-  stationsData: IStationsList /* 设备列表 */;
+  SelectedThing: IThing | null /* 选中设备 */;
   onDetailButtonClick: Function /* 设置选中设备 */;
-  FetchStationDetail: Function /* 获得选中设备历史 - 数据模型更新 */;
-  onDetailPlaneClose?: Function /* 清空选中设备历史 - 数据模型更新 */;
+  onDetailPlaneClose?: Function /* 清空选中设备 */;
   OnlineFilterCurState: object;
   OnlineFilterCallBack: Function;
   AlarmFilterCurState: object;
@@ -36,44 +33,36 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
     stShowThingInformation: false,
     stDetailPlaneState: 'FunctionMenu',
   };
-
   constructor(props: DetailPlaneProps) {
     // when need to use props in constructor, use super(props)
     // when need not to use props in constructor, use super()
     super(props);
   }
-
-  componentWillMount() {}
-  componentDidMount() {}
+  /* 切换菜单的状态 */
   componentWillReceiveProps(newProps: DetailPlaneProps) {
     const { SelectedThing } = newProps;
+    /* 没有设备(Thing)被选中，则不显示设备详细信息 */
     if (SelectedThing === undefined || SelectedThing === null) {
       this.setState({ stShowThingInformation: false });
-    } else {
+    } else { /* 设备(Thing)被选中，则显示细节菜单，并放大细节菜单，并显示设备详细信息 */
       this.setState({
-        stShowThingInformation: true,
-        stDetailPlaneOpen: true,
-        stDetailPlaneShow: true,
+        stShowThingInformation: true, /* 显示设备详细信息 */
+        stDetailPlaneOpen: true, /* 放大左侧面板 */
+        stDetailPlaneShow: true, /* 显示左侧面板 */
       });
     }
   }
-  shouldComponentUpdate(newProps: DetailPlaneProps, newState: DetailPlaneState) {
-    return true;
-  }
-  componentWillUpdate(nextProps: DetailPlaneProps, nextState: DetailPlaneState) {}
-  componentDidUpdate(prevProps: DetailPlaneProps, prevState: DetailPlaneState) {}
-  componentWillUnmount() {}
-
+  /* 缩小左侧面板，并将面板内容设为菜单，并将选中设备设置为null */
   CloseDetailPlane = () => {
     const { onDetailPlaneClose = () => {} } = this.props;
     this.setState({ stDetailPlaneOpen: false, stDetailPlaneState: 'FunctionMenu' });
     onDetailPlaneClose();
   };
-
+  /* 改变左侧面板的内容 */
   SwitchDetailPlaneContent = (task: 'FunctionMenu' | 'ThingList') => {
     this.setState({ stDetailPlaneState: task });
   };
-
+  /* 隐藏左侧面板 */
   ShowHideDetailPlane = () => {
     const { stDetailPlaneShow } = this.state;
     if (stDetailPlaneShow) {
@@ -82,13 +71,10 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
       this.setState({ stDetailPlaneShow: true });
     }
   };
-
+  /* 显示组件 */
   render() {
     const {
       SelectedThing,
-      stationDetailData,
-      FetchStationDetail,
-      stationsData,
       onDetailButtonClick,
       returnPoi = () => {},
     } = this.props;
@@ -126,7 +112,6 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
           key={'搜索栏'}
           placeholder={'输入位置定位地图'}
           returnPoi={returnPoi}
-          FetchStationList={() => {}}
         />,
         <Button
           key={'放大缩小按钮'}
@@ -148,7 +133,6 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
           key={'搜索栏'}
           placeholder={'输入位置定位地图'}
           returnPoi={returnPoi}
-          FetchStationList={() => {}}
           style={{ margin: 10 }}
         />,
         <div
@@ -176,8 +160,6 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
         <DetailContainer key={'内容区'}>
           <ThingInformation
             SelectedThing={SelectedThing}
-            stationDetailData={stationDetailData}
-            FetchStationDetail={FetchStationDetail}
           />
         </DetailContainer>,
       );
@@ -189,7 +171,6 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
           key={'搜索栏'}
           placeholder={'输入位置定位地图'}
           returnPoi={returnPoi}
-          FetchStationList={() => {}}
           style={{ margin: 10 }}
         />,
         <div
@@ -220,7 +201,6 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
           Content.push(
             <DetailContainer key={'内容区'}>
               <ThingList
-                stationsData={stationsData}
                 onDetailButtonClick={onDetailButtonClick}
                 onReturnClick={this.SwitchDetailPlaneContent}
               />
@@ -232,7 +212,6 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
           Content.push(
             <DetailContainer key={'内容区'}>
               <FunctionMenu
-                stationsData={stationsData}
                 onMenuClick={this.SwitchDetailPlaneContent}
               />
             </DetailContainer>,

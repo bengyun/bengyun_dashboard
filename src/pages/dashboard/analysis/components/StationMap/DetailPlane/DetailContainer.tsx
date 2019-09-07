@@ -15,16 +15,6 @@ class DetailContainer extends Component<DetailContainerProps, DetailContainerSta
     this.state = {};
   }
 
-  componentWillMount() {}
-  componentDidMount() {}
-  componentWillReceiveProps(newProps: DetailContainerProps) {}
-  shouldComponentUpdate(newProps: DetailContainerProps, newState: DetailContainerState) {
-    return true;
-  }
-  componentWillUpdate(nextProps: DetailContainerProps, nextState: DetailContainerState) {}
-  componentDidUpdate(prevProps: DetailContainerProps, prevState: DetailContainerState) {}
-  componentWillUnmount() {}
-
   render() {
     const { children = null } = this.props;
     return (
