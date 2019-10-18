@@ -64,37 +64,22 @@ const PumpStation = ({ thing, pumpSwitch }: { thing: IThing, pumpSwitch: Functio
   const pumpCurrent = reporting.pump_current ? reporting.pump_current : 0;
   const pumpStatus = reporting.pump_status ? reporting.pump_status : 0;
   const dateUpdateTime = reporting.updateTime ? reporting.updateTime : 0;
-  const sendCommand = ({ idx, checked }: { idx: number; checked: boolean; }) => {
+  const sendCommand = ({ pumpNumber, checked }: { pumpNumber: number; checked: boolean; }) => {
     const data = {
       target: thing.metadata.pump_ctrl.control_channel,
-      pumpData: {
-        p1: (pumpStatus % 10) >= 1 ? 1 : 0,
-        p2: (pumpStatus / 10 % 10) >= 1 ? 1 : 0,
-        p3: (pumpStatus / 100) >= 1 ? 1 : 0,
-      },
+      pumpData: '{"P' + (pumpNumber) + '": ' + (checked ? 1 : 0) + '}',
     };
-    switch (idx) {
-      case 0:
-        data.pumpData.p1 = checked ? 1 : 0;
-        break;
-      case 1:
-        data.pumpData.p2 = checked ? 1 : 0;
-        break;
-      case 2:
-        data.pumpData.p3 = checked ? 1 : 0;
-        break;
-      default:
-    }
     pumpSwitch(data);
   };
   const pumpStatusArea = [];
   for (let idx = 0; idx < pump_ctrl.pump_number; idx++) {
     const figure = Math.pow(10, idx);
     const pumpOnOff = (pumpStatus / figure % 10) >= 1;
+    const pumpNumber: number = idx;
     pumpStatusArea.push(
       <Row type="flex" align="middle" key={idx}>
         <Col span={8}>水泵 {idx} 状态：</Col>
-        <Switch checkedChildren="开" unCheckedChildren="关" checked={pumpOnOff} onChange={(checked: boolean) => sendCommand({idx, checked}) }/>
+        <Switch checkedChildren="开" unCheckedChildren="关" checked={pumpOnOff} onChange={(checked: boolean) => sendCommand({pumpNumber, checked}) }/>
       </Row>,
     );
   }
@@ -152,6 +137,22 @@ const CustomMarker = (
   }) => {
   const Bd09ll = thing.metadata.location.gps;
   const Gcj02ll = Bd09llToGcj02ll(Bd09ll);
+
+  const current = thing.metadata.reporting.water_level.current;
+  const critical = thing.metadata.reporting.water_level.critical;
+  const warning = thing.metadata.reporting.water_level.warning;
+
+  const updateTime = thing.metadata.reporting.updateTime;
+  let className = styles.markStyle_NaN;
+  if (new Date().getTime() - new Date(updateTime).getTime() > 24 * 60 * 60 * 1000) {
+    className = styles.markStyle_NaN;
+  } else if (current < warning) {
+    className = styles.markStyle_normal;
+  } else if (current < critical) {
+    className = styles.markStyle_warning;
+  } else {
+    className = styles.markStyle_critical;
+  }
   return (
     <Marker
       key={thing.key}
@@ -164,7 +165,7 @@ const CustomMarker = (
       }}
     >
       <Popover placement="rightTop" content={<HoverContent thing={thing} pumpSwitch={pumpSwitch} />}>
-        <div className={styles.markStyle}>
+        <div className={className}>
           {thing.metadata.reporting.water_level.current ? thing.metadata.reporting.water_level.current : 0}
         </div>
       </Popover>

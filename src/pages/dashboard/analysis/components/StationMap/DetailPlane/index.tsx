@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { Button, Icon, Tooltip } from 'antd';
 import styles from './index.less';
 import ThingList from './ThingList';
+import ThingTable from './ThingTable';
 import { IThing } from '@/pages/dashboard/analysis/data';
 import DetailContainer from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/DetailContainer';
 import FunctionMenu from '@/pages/dashboard/analysis/components/StationMap/DetailPlane/FunctionMenu';
@@ -23,7 +24,7 @@ interface DetailPlaneState {
   stDetailPlaneOpen: boolean;
   stDetailPlaneShow: boolean;
   stShowThingInformation: boolean;
-  stDetailPlaneState: 'FunctionMenu' | 'ThingList';
+  stDetailPlaneState: 'FunctionMenu' | 'ThingList' | 'ThingTable';
 }
 
 class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
@@ -59,7 +60,7 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
     onDetailPlaneClose();
   };
   /* 改变左侧面板的内容 */
-  SwitchDetailPlaneContent = (task: 'FunctionMenu' | 'ThingList') => {
+  SwitchDetailPlaneContent = (task: 'FunctionMenu' | 'ThingList' | 'ThingTable') => {
     this.setState({ stDetailPlaneState: task });
   };
   /* 隐藏左侧面板 */
@@ -201,6 +202,17 @@ class DetailPlane extends Component<DetailPlaneProps, DetailPlaneState> {
           Content.push(
             <DetailContainer key={'内容区'}>
               <ThingList
+                onDetailButtonClick={onDetailButtonClick}
+                onReturnClick={this.SwitchDetailPlaneContent}
+              />
+            </DetailContainer>,
+          );
+          break;
+        case 'ThingTable':
+          ComponentClassName = styles.detailPlaneVeryLarge;
+          Content.push(
+            <DetailContainer key={'内容区'}>
+              <ThingTable
                 onDetailButtonClick={onDetailButtonClick}
                 onReturnClick={this.SwitchDetailPlaneContent}
               />

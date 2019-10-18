@@ -61,7 +61,7 @@ class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
   };
   getOptions() {
     const { data } = this.state;
-    return data.map((item: { id: any; name: any }) => <Option key={item.id}>{item.name}</Option>);
+    return data.map((item: { id: any; name: any }) => <Option key={item.id} style={{fontSize: 18}}>{item.name}</Option>);
   }
   RenderMapSearch = () => {
     const { value } = this.state;
@@ -78,6 +78,7 @@ class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
         onSearch={this.handleSearch}
         onChange={this.handleChange}
         notFoundContent={null}
+        style={{fontSize: 18}}
       >
         {this.getOptions()}
       </Select>
@@ -128,6 +129,8 @@ class SearchPlane extends Component<SearchPlaneProps, SearchPlaneState> {
         defaultValue={stDefaultRegion}
         options={options}
         onChange={this.onRegionSelectChange}
+        placeholder="请选择区域"
+        style={{fontSize: 18}}
       />
     );
   };

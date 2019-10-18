@@ -114,36 +114,75 @@ export default {
   // },
   proxy: {
     '/tokens': {
-      target: 'http://47.88.225.240/',
+      target: 'http://121.41.1.169/',
       changeOrigin: true,
       //pathRewrite: { '^/bengyun': '' },
     },
     '/things': {
-      target: 'http://47.88.225.240/',
+      target: 'http://121.41.1.169/',
       changeOrigin: true,
       //pathRewrite: { '^/bengyun': '' },
     },
     '/api/messages': {
-      target: 'http://47.88.225.240/',
+      target: 'http://localhost:8905/',
       changeOrigin: true,
-      //pathRewrite: { '^/bengyun': '' },
+      pathRewrite: { '^/api': '' },
     },
     '/api/newestData': {
-      target: 'http://47.88.225.240/',
+      target: 'http://localhost:8905/',
       changeOrigin: true,
+      pathRewrite: { '^/api': '' },
     },
     '/api/waterLevel': {
-      target: 'http://47.88.225.240/',
+      target: 'http://localhost:8905/',
       changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+    '/api/thingIdWaterLevel': {
+      target: 'http://localhost:8905/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+    '/api/waterLevel_for_tiangu_20191016': {
+      target: 'http://localhost:8905/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+    '/api/pumpstatus_20191016': {
+      target: 'http://localhost:8905/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+    '/api/pumpCurrent': {
+      target: 'http://localhost:8905/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
     },
     '/api/histogram': {
-      target: 'http://47.88.225.240/',
+      target: 'http://localhost:8905/',
       changeOrigin: true,
+      pathRewrite: { '^/api': '' },
     },
-    '/api/pumpControl': {
-      target: 'http://47.88.225.240/',
+    '/api/pumpControl_20191014': {
+      target: 'http://localhost:8905/',
       changeOrigin: true,
-      //pathRewrite: { '^/api': '' },
+      pathRewrite: { '^/api': '' },
+    },
+    '/api/microServiceControl_20191015': {
+      target: 'http://localhost:8905/',
+      changeOrigin: true,
+      pathRewrite: { '^/api': '' },
+    },
+    '/ws/**': {
+      target: 'ws://47.88.225.240',
+      ws: true,
+      secure: false,
+    },
+    '/local': {
+      target: 'ws://106.12.34.4:8083/mqtt',
+      ws: true,
+      secure: false,
+      pathRewrite: { '^/local': '' },
     },
   },
   ignoreMomentLocale: true,

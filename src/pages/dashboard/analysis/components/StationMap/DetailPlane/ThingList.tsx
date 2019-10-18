@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { List, Icon } from 'antd';
+import { List, Icon, Row, Col } from 'antd';
 import styles from './index.less';
 import { IAnalysisData, IStationsList, IThing } from '@/pages/dashboard/analysis/data';
 import { connect } from 'dva';
@@ -69,6 +69,41 @@ class ThingList extends Component<ThingListProps, ThingListState> {
     }
     return res;
   };
+
+  RenderListItemFunction = (item: IThing) => {
+    const current = item.metadata.reporting.water_level.current;
+    const critical = item.metadata.reporting.water_level.critical;
+    const warning = item.metadata.reporting.water_level.warning;
+
+    let color;
+    const space = "\xa0\xa0\xa0\xa0";
+
+    const updateTime = item.metadata.reporting.updateTime;
+    if (new Date().getTime() - new Date(updateTime).getTime() > 24 * 60 * 60 * 1000) {
+      color = "grey";
+    } else if (current < warning) {
+      color = "green";
+    } else if (current > critical) {
+      color = "red";
+    } else {
+      color = "orange";
+    }
+
+    return (
+      <div>
+        <Row >
+          <Col span={20}>{space}{item.name}</Col>
+          <Col span={4} style={{ color: color}}>
+            <Icon type="info-circle" theme="filled" />
+          </Col>
+        </Row>
+        <Row>
+          {space}{item.metadata.location.address}
+        </Row>
+      </div>
+    )
+  };
+
   /* 显示组件 */
   render() {
     const {
@@ -81,6 +116,9 @@ class ThingList extends Component<ThingListProps, ThingListState> {
     let stations: IThing[] = [];
     /* 对设备(Thing)信息进行筛选 */
     if (stationsData !== undefined) stations = this.filterListItem(stationsData);
+
+    const space = "\xa0\xa0\xa0\xa0" + "液位:";
+
     return (
       <>
         <div
@@ -103,8 +141,9 @@ class ThingList extends Component<ThingListProps, ThingListState> {
                 }}
                 actions={[<span key={item.key}> {item.metadata.reporting.updateTime} </span>]}
               >
-                <List.Item.Meta title={item.name} description={item.metadata.location.address} />
-                液位:{item.metadata.reporting.water_level.current}
+                <this.RenderListItemFunction {...item}/>
+                {space}
+                {item.metadata.reporting.water_level.current}
               </List.Item>
             )}
           />

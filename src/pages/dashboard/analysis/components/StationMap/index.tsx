@@ -16,7 +16,6 @@ interface StationMapState {
   mapZoom: number | null;
   OnlineFilterCurState: object;
   AlarmFilterCurState: object;
-  SelectedThing: IThing | null;
 }
 
 @connect(
@@ -34,7 +33,6 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     mapZoom: 14, /* 地图的缩放比例，暂时是个固定值 */
     OnlineFilterCurState: { Online: true, Offline: true }, /* 在线筛选条件 */
     AlarmFilterCurState: { Normal: true, Alarm: true }, /* 警报筛选条件 */
-    SelectedThing: null, /* 选中的设备 */
   };
   /* 保存高德地图原生对象 */
   aMap = null;
@@ -65,8 +63,12 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     const Bd09ll = extData.metadata.location.gps;
     const Gcj02ll = this.Bd09llToGcj02ll(Bd09ll);
     this.setState({
-      SelectedThing: extData,
       mapCenter: Gcj02ll,
+    });
+    const { dispatch } = this.props;
+    if (dispatch) dispatch({
+      type: 'dashboardAnalysis/setSelectedThing',
+      payload: extData,
     });
     const aMap = this.aMap;
     if (aMap !== null) {
@@ -76,8 +78,10 @@ class StationMap extends Component<StationMapProps, StationMapState> {
   };
   /* 将选中设备设置为null */
   ResetSelectedThing = () => {
-    this.setState({
-      SelectedThing: null,
+    const { dispatch } = this.props;
+    if (dispatch) dispatch({
+      type: 'dashboardAnalysis/setSelectedThing',
+      payload: null,
     });
   };
   /* 根据参数的坐标定位地图中心 */
@@ -100,13 +104,12 @@ class StationMap extends Component<StationMapProps, StationMapState> {
   };
   /* 控制水泵的函数 */
   PumpControl = (data: any) => {
-    const { dispatch } = this.props;
+    const {
+      dispatch,
+    } = this.props;
     if (dispatch) dispatch({
       type: 'dashboardAnalysis/pumpControl',
       payload: data,
-    });
-    if (dispatch) dispatch({
-      type: 'dashboardAnalysis/fetchStationsData',
     });
   };
   /* 根据设备(Thing)信息生成地图标记列表 */
@@ -144,7 +147,8 @@ class StationMap extends Component<StationMapProps, StationMapState> {
     /* 筛选条件 */
     const { OnlineFilterCurState, AlarmFilterCurState } = this.state;
     /* 选中的设备(Thing) */
-    const { SelectedThing } = this.state;
+    const { dashboardAnalysis = {selectedThing: null} } = this.props;
+    const { selectedThing } = dashboardAnalysis;
     /* Map Properties */
     const plugins: ('MapType' | 'OverView' | 'Scale' | 'ToolBar' | 'ControlBar')[] = [
       'Scale',
@@ -170,7 +174,7 @@ class StationMap extends Component<StationMapProps, StationMapState> {
         {this.RenderMarker()}
 
         <DetailPlane
-          SelectedThing={SelectedThing}
+          SelectedThing={selectedThing}
           onDetailPlaneClose={this.ResetSelectedThing}
           onDetailButtonClick={this.SetSelectedThing}
           OnlineFilterCurState={OnlineFilterCurState}

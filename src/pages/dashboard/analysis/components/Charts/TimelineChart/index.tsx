@@ -25,7 +25,7 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
     const {
       title,
       height = 400,
-      padding = [60, 20, 40, 40] as [number, number, number, number],
+      padding = [60, 30, 40, 40] as [number, number, number, number],
       titleMap = {
         y1: 'y1',
         max: 'max',
@@ -79,7 +79,7 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
 
     const SliderGen = () => (
       <Slider
-        padding={[0, padding[1] + 20, 0, padding[3]]}
+        padding={[0, padding[1] + 60, 0, padding[3] + 40]}
         width="auto"
         height={26}
         xAxis="x"
@@ -111,7 +111,7 @@ class TimelineChart extends React.Component<ITimelineChartProps> {
               color={['key', ['blue', 'red']]}
             />
           </Chart>
-          <div style={{ marginRight: -20 }}>
+          <div>
             <SliderGen />
           </div>
         </div>

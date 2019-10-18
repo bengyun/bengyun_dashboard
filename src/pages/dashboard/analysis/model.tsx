@@ -1,8 +1,9 @@
-import { getThings, getNewestData, getChannels, getHistogram, pumpControl } from '@/services/api';
+import { getThings, getNewestData, getChannels, getChannelsTemp, getChannelsTempOfTiangu, getPumpStatus, /* getHistogram,*/ pumpControl, microServiceControl } from '@/services/api';
 import { IAnalysisData, IStationsList } from './data';
 import { Reducer } from 'redux';
 import { EffectsCommandMap } from 'dva';
 import { AnyAction } from 'redux';
+import { IThing } from '@/pages/dashboard/analysis/data';
 const dateTime = require('date-time');
 
 export type Effect = (
@@ -15,10 +16,17 @@ export interface ModelType {
   state: IAnalysisData;
   effects: {
     fetchStationsData: Effect;
+    updateThingData: Effect;
     fetchStationDetailData: Effect;
     clearStationDetailData: Effect;
 
     pumpControl: Effect;
+    microServiceControl: Effect;
+
+    setSelectedThing: Effect;
+    updateDetailData: Effect;
+
+    setTiangu: Effect;
   };
   reducers: {
     save: Reducer<IAnalysisData>;
@@ -36,25 +44,37 @@ const Model: ModelType = {
       limit: 0,
       things: [],
     },
+    selectedThing: null,
     stationDetailData: {
       historyLevel: [],
       histogram: [],
+      historyLevelOfTiangu: [],
+      PumpStatus: [],
+
+      pumpCurrent: [],
+      newPumpStatus: [],
+      newWaterLevel: [],
+      newWaterLevelTIANGU: [],
     },
+    TIANGU: 0,
   },
 
   effects: {
     *fetchStationsData({ payload }, { call, put }) {
       const thingList: IStationsList = yield call(getThings, payload); /* 获得设备信息 */
-      const allThings = thingList.things;
+      const allThings: IThing[] = thingList.things;
       thingList.things = [];
-      const payloadForNewestData: { things: string[] } = { things: [] };
+      const payloadForNewestData: { things: {thing_id: string; thing_type: string}[] } = { things: [] };
       for (let idx: number = 0; idx < allThings.length; idx++) {
         if (
           (allThings[idx].metadata.type === 'pump_station') || /* 自制泵站终端 */
           (allThings[idx].metadata.type === 'manhole') /* 窨井 */
         ) {
           thingList.things.push(allThings[idx]); /* 重新加入有效的设备 */
-          payloadForNewestData.things.push(allThings[idx].id); /* 设备列表 thing_id */
+          payloadForNewestData.things.push({
+            thing_id: allThings[idx].id,
+            thing_type: allThings[idx].metadata.type,
+          }); /* 设备列表 */
         }
       }
       const newestData: {
@@ -109,6 +129,14 @@ const Model: ModelType = {
         },
       });
     },
+    *updateThingData({ payload }, { select, call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          stationsData: payload,
+        },
+      });
+    },
     *fetchStationDetailData({ payload }, { call, put }) {
       const TimeDiff =
         new Date(dateTime()).getTime() -
@@ -124,14 +152,37 @@ const Model: ModelType = {
         startTime: dateTime({ date: startTimeUTC }) /* 起始时间 yyyy-MM-dd HH:mm:ss */,
         endTime: dateTime({ date: endTimeUTC }) /* 结束时间 yyyy-MM-dd HH:mm:ss */,
       };
-      const historyLevel = yield call(getChannels, params);
+      let historyLevel: any = null;
+      let historyLevelOfTiangu: any = null;
+      let PumpStatus: any = null;
+      if (payload.thingType === 'pump_station') {
+        historyLevel = yield call(getChannelsTemp, params);
+        historyLevelOfTiangu = yield call(getChannelsTempOfTiangu, params);
+        PumpStatus = yield call(getPumpStatus, params);
+        console.log(PumpStatus);
+      } else {
+        historyLevel = yield call(getChannels, params);
+      }
       for (let idx: number = 0; idx < historyLevel.length; idx++) {
         /* 将返回的UTC时间转换为当地时间 */
         historyLevel[idx].time = dateTime({
           date: new Date(new Date(historyLevel[idx].time).getTime() + TimeDiff),
         });
       }
-      const histogram = yield call(getHistogram, params);
+      for (let idx: number = 0; idx < historyLevelOfTiangu.length; idx++) {
+        /* 将返回的UTC时间转换为当地时间 */
+        historyLevelOfTiangu[idx].time = dateTime({
+          date: new Date(new Date(historyLevelOfTiangu[idx].time).getTime() + TimeDiff),
+        });
+      }
+      for (let idx: number = 0; idx < PumpStatus.length; idx++) {
+        /* 将返回的UTC时间转换为当地时间 */
+        PumpStatus[idx].time = dateTime({
+          date: new Date(new Date(PumpStatus[idx].time).getTime() + TimeDiff),
+        });
+      }
+      const histogram: any[] = [];
+      // const histogram = yield call(getHistogram, params);
       let lastNum = 0;
       for (let idx: number = 0; idx < histogram.length; idx++) {
         if (histogram[idx].le === 0) continue;
@@ -142,7 +193,7 @@ const Model: ModelType = {
       yield put({
         type: 'save',
         payload: {
-          stationDetailData: { historyLevel, histogram },
+          stationDetailData: { historyLevel, pumpCurrent: [], histogram, historyLevelOfTiangu, PumpStatus, newPumpStatus: [], newWaterLevel: [], newWaterLevelTIANGU: [] },
         },
       });
     },
@@ -153,6 +204,34 @@ const Model: ModelType = {
     },
     *pumpControl({ payload }, { call }) {
       yield call(pumpControl, payload);
+    },
+    *microServiceControl({ payload }, { call }) {
+      yield call(microServiceControl, payload);
+    },
+    *setSelectedThing({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          selectedThing: payload,
+        },
+      });
+    },
+    *updateDetailData({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          stationDetailData: payload,
+        },
+      });
+    },
+
+    *setTiangu({ payload }, { call, put }) {
+      yield put({
+        type: 'save',
+        payload: {
+          TIANGU: payload,
+        },
+      });
     },
   },
 
@@ -171,10 +250,19 @@ const Model: ModelType = {
           limit: 0,
           things: [],
         },
+        selectedThing: null,
         stationDetailData: {
           historyLevel: [],
           histogram: [],
+          historyLevelOfTiangu: [],
+          PumpStatus: [],
+
+          pumpCurrent: [],
+          newPumpStatus: [],
+          newWaterLevel: [],
+          newWaterLevelTIANGU: [],
         },
+        TIANGU: 0,
       };
     },
   },

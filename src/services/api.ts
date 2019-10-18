@@ -46,6 +46,54 @@ export async function getChannels(payload: {
   return request(url);
 }
 
+export async function getChannelsTemp(payload: {
+  publisher: string;
+  startTime: string | undefined;
+  endTime: string | undefined;
+}) {
+  const { publisher, startTime, endTime } = payload;
+  let url: string = '/api/thingIdWaterLevel/' + publisher;
+  if (startTime !== undefined) url = url + '/' + startTime;
+  if (endTime !== undefined) url = url + '/' + endTime;
+  return request(url);
+}
+
+export async function getChannelsTempOfTiangu(payload: {
+  publisher: string;
+  startTime: string | undefined;
+  endTime: string | undefined;
+}) {
+  const { startTime, endTime } = payload;
+  let url: string = '/api/waterLevel_for_tiangu_20191016/' + '4e2b4730-c5bc-4b1d-8fa1-b810d3aca96d';
+  if (startTime !== undefined) url = url + '/' + startTime;
+  if (endTime !== undefined) url = url + '/' + endTime;
+  return request(url);
+}
+
+export async function getPumpStatus(payload: {
+  publisher: string;
+  startTime: string | undefined;
+  endTime: string | undefined;
+}) {
+  const { publisher, startTime, endTime } = payload;
+  let url: string = '/api/pumpstatus_20191016/' + publisher;
+  if (startTime !== undefined) url = url + '/' + startTime;
+  if (endTime !== undefined) url = url + '/' + endTime;
+  return request(url);
+}
+
+export async function getPumpCurrentTrend(payload: {
+  publisher: string;
+  startTime: string | undefined;
+  endTime: string | undefined;
+}) {
+  const { publisher, startTime, endTime } = payload;
+  let url: string = '/api/pumpCurrent/' + publisher;
+  if (startTime !== undefined) url = url + '/' + startTime;
+  if (endTime !== undefined) url = url + '/' + endTime;
+  return request(url);
+}
+
 export async function getHistogram(payload: {
   publisher: string;
   startTime: string | undefined;
@@ -60,8 +108,15 @@ export async function getHistogram(payload: {
 }
 
 export async function pumpControl(data: {target: string; pumpData: { p1: number; p2: number; p3: number; }}) {
-  return request('/api/pumpControl/' + data.target, {
+  return request('/api/pumpControl_20191014/' + data.target, {
     method: 'POST',
     data: data.pumpData,
+  });
+}
+
+export async function microServiceControl(data: string) {
+  return request('/api/microServiceControl_20191015/', {
+    method: 'POST',
+    data: data,
   });
 }

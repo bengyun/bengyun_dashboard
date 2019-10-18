@@ -1,30 +1,31 @@
 export interface IMetaData {
   device: string;
   name: string;
-  type: string; /* ???Œ^ */
+  type: string; /* ???ï¿½^ */
   location: {
-    address: string; /* ’nš¬ */
-    gps: {  /* GPS¿? */
+    address: string; /* ï¿½nï¿½ï¿½ */
+    gps: {  /* GPSï¿½ï¿½? */
       latitude: number;
       longitude: number;
     };
   };
   reporting: {
-    updateTime: string; /* ”˜XV?? */
-    batteryVoltage: number; /* ?’r?? */
-    pump_current: number; /* …??—¬ */
-    pump_status: number; /* …?ó? */
-    water_level: { /* …ˆÊM‘§ */
-      current: number; /* “–‘O…ˆÊ */
-      critical: number; /* ?‹}…ˆÊ */
-      depth: number; /* [“x */
-      overflow: number; /* ?ˆì…ˆÊ */
-      warning: number; /* Œx?…ˆÊ */
+    updateTime: string; /* ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½V?? */
+    batteryVoltage: number; /* ?ï¿½r?? */
+    pump_current: number; /* ï¿½ï¿½??ï¿½ï¿½ */
+    pump_status: number; /* ï¿½ï¿½?ï¿½ï¿½? */
+    water_level: { /* ï¿½ï¿½ï¿½ÊMï¿½ï¿½ */
+      current: number; /* ï¿½ï¿½ï¿½Oï¿½ï¿½ï¿½ï¿½ */
+      critical: number; /* ?ï¿½}ï¿½ï¿½ï¿½ï¿½ */
+      depth: number; /* ï¿½[ï¿½x */
+      overflow: number; /* ?ï¿½ì…ï¿½ï¿½ */
+      warning: number; /* ï¿½x?ï¿½ï¿½ï¿½ï¿½ */
     };
   };
-  pump_ctrl: { /* ?â‹“Æ—L“I…?T§M‘§ */
+  pump_ctrl: { /* ?â‹“Æ—Lï¿½Iï¿½ï¿½?ï¿½Tï¿½ï¿½ï¿½Mï¿½ï¿½ */
     pump_number: number;
     control_channel: string;
+    auto_control: boolean;
   }
 }
 
@@ -45,15 +46,42 @@ export interface IStationsList {
 export interface IStationDetailData {
   historyLevel: {
     time: string;
-    mean: string;
+    mean: number;
   }[];
   histogram: {
     le: string;
     value: number;
   }[];
+  historyLevelOfTiangu: {
+    time: string;
+    mean: number;
+  }[];
+  PumpStatus: {
+    time: string;
+    max: number;
+  }[];
+
+  pumpCurrent: {
+    time: string;
+    mean: number;
+  }[];
+  newPumpStatus: {
+    time: string;
+    max: number;
+  }[];
+  newWaterLevel: {
+    time: string;
+    mean: number;
+  }[];
+  newWaterLevelTIANGU: {
+    time: string;
+    mean: number;
+  }[];
 }
 
 export interface IAnalysisData {
   stationsData: IStationsList;
+  selectedThing: IThing | null;
   stationDetailData: IStationDetailData;
+  TIANGU: number;
 }
